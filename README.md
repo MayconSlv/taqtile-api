@@ -2,4 +2,4 @@
   Taqtile API
 </h1>
 
-API desenvolvida durante o processo seletivo da TAQTILE.
+API desenvolvida durante o processo seletivo do instituto TAQTILE.
