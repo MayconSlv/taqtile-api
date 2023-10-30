@@ -4,9 +4,18 @@ import { AppDataSource } from './data-source'
 import { User } from './entities/User'
 
 const typeDefs = gql`
+  input UserInput {
+    name: String!
+    email: String!
+    password: String!
+    birthDate: String!
+  }
+
   type User {
     id: ID!
     name: String
+    email: String
+    birthDate: String
   }
 
   type Query {
@@ -14,7 +23,7 @@ const typeDefs = gql`
   }
 
   type Mutation {
-    create(name: String): User!
+    createUser(data: UserInput): User!
   }
 `
 
@@ -30,15 +39,13 @@ const server = new ApolloServer({
       },
     },
     Mutation: {
-      create: async (_, args) => {
-        const repo = AppDataSource.getRepository(User)
-
-        const user = repo.create({
-          name: args.name,
-        })
-        await repo.save(user)
-
-        return user
+      createUser: (_, { data }) => {
+        const { name, email, birthDate } = data
+        return {
+          name,
+          email,
+          birthDate,
+        }
       },
     },
   },

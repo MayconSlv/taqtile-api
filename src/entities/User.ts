@@ -7,4 +7,13 @@ export class User {
 
   @Column()
   name: string
+
+  @Column()
+  email: string
+
+  @Column()
+  password: string
+
+  @Column()
+  birthDate: string
 }
