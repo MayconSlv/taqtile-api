@@ -18,4 +18,8 @@ export = gql`
   type Mutation {
     createUser(data: UserInput): User!
   }
+
+  type Query {
+    hello: String
+  }
 `

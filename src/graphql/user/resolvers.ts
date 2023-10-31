@@ -17,4 +17,9 @@ export = {
       return user
     },
   },
+  Query: {
+    hello: () => {
+      return 'Hello Taqtile'
+    },
+  },
 }
