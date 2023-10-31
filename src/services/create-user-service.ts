@@ -1,5 +1,6 @@
 import { AppDataSource } from '../data-source'
 import { User } from '../entities/User'
+import { hash } from 'bcryptjs'
 
 interface CreateUserServiceRequest {
   name: string
@@ -21,7 +22,9 @@ export class CreateUserService {
       throw new Error('Email address already exists')
     }
 
-    const user = repo.create({ name, email, password, birthDate })
+    const password_hash = await hash(password, 6)
+
+    const user = repo.create({ name, email, password_hash, birthDate })
     await repo.save(user)
 
     return {
