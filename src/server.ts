@@ -40,12 +40,16 @@ const server = new ApolloServer({
     },
     Mutation: {
       createUser: (_, { data }) => {
-        const { name, email, birthDate } = data
-        return {
+        const { name, email, birthDate, password } = data
+
+        const user = {
           name,
           email,
           birthDate,
+          password,
         }
+
+        return user
       },
     },
   },
