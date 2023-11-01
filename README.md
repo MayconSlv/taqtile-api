@@ -33,9 +33,6 @@ $ npm install
 # Start containers
 $ docker compose up -d
 
-# Install the migrations
-$ npm run typeorm migration:run -- -d ./src/data-source.ts
-
 # Execute the API in developer mode
 $ npm run start:dev
 ```
