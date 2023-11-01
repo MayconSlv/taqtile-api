@@ -10,9 +10,9 @@ export = gql`
 
   type User {
     id: ID!
-    name: String
-    email: String
-    birthDate: String
+    name: String!
+    email: String!
+    birthDate: String!
   }
 
   type Mutation {

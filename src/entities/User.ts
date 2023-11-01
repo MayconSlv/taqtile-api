@@ -12,7 +12,7 @@ export class User {
   email: string
 
   @Column()
-  password_hash: string
+  passwordHash: string
 
   @Column()
   birthDate: string

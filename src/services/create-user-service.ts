@@ -22,9 +22,9 @@ export class CreateUserService {
       throw new Error('Email address already exists')
     }
 
-    const password_hash = await hash(password, 6)
+    const passwordHash = await hash(password, 6)
 
-    const user = repo.create({ name, email, password_hash, birthDate })
+    const user = repo.create({ name, email, passwordHash, birthDate })
     await repo.save(user)
 
     return {
