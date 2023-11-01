@@ -11,6 +11,7 @@
     "esModuleInterop": true,
     "forceConsistentCasingInFileNames": true,
     "strict": true,
+    "noImplicitAny": false,
     "strictPropertyInitialization": false,
     "skipLibCheck": true,
     "sourceMap": true
