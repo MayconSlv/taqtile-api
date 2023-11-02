@@ -1,13 +1,13 @@
 {
   "name": "taqtile-api",
-  "type": "commonjs",
   "version": "1.0.0",
   "description": "<h1 align=\"center\">   Taqtile API </h1>",
   "main": "index.js",
   "scripts": {
     "start:dev": "ts-node src/server.ts",
     "start": "tsx watch src/server.ts",
-    "typeorm": "typeorm-ts-node-commonjs"
+    "typeorm": "typeorm-ts-node-commonjs",
+    "test": "mocha -r ts-node/register test/**/*.spec.ts"
   },
   "keywords": [],
   "author": "",
@@ -26,11 +26,15 @@
     "zod": "^3.22.4"
   },
   "devDependencies": {
+    "@types/mocha": "^10.0.3",
     "@types/node": "^16.11.10",
     "@typescript-eslint/eslint-plugin": "^6.9.0",
     "@typescript-eslint/parser": "^6.9.0",
+    "assert": "^2.1.0",
+    "axios": "^1.6.0",
     "eslint": "^8.52.0",
     "eslint-config-prettier": "^9.0.0",
+    "mocha": "^10.2.0",
     "prettier": "^3.0.3",
     "ts-node": "^10.7.0",
     "tsx": "^3.14.0",
