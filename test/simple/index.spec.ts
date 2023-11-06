@@ -7,10 +7,10 @@ import { ApolloServer } from 'apollo-server'
 import { resolvers, typeDefs } from '../../src/graphql'
 
 describe('Query Test', () => {
-  let TestDataSource: DataSource
+  let testDataSource: DataSource
 
   before(async () => {
-    TestDataSource = new DataSource({
+    testDataSource = new DataSource({
       type: 'postgres',
       host: 'localhost',
       port: 5433,
@@ -22,7 +22,8 @@ describe('Query Test', () => {
     })
 
     const server = new ApolloServer({ resolvers, typeDefs })
-    return TestDataSource.initialize()
+    return testDataSource
+      .initialize()
       .then(() => {
         console.log('TestDatabase OK.')
         server.listen().then(({ url }) => console.log(url))
@@ -33,7 +34,7 @@ describe('Query Test', () => {
   })
 
   after(async () => {
-    await TestDataSource.destroy()
+    await testDataSource.destroy()
   })
 
   it('should return Hello Taqtile', async () => {
