@@ -1,9 +1,43 @@
-import { before, describe, it } from 'mocha'
+import { after, describe, it } from 'mocha'
+import { expect } from 'chai'
 import axios from 'axios'
-import assert from 'assert'
+import { DataSource } from 'typeorm'
+import { join } from 'node:path'
+import { ApolloServer } from 'apollo-server'
+import { resolvers, typeDefs } from '../../src/graphql'
 
-describe('Simples test', () => {
+describe('Query Test', () => {
+  let testDataSource: DataSource
+
   before(async () => {
+    testDataSource = new DataSource({
+      type: 'postgres',
+      host: 'localhost',
+      port: 5433,
+      username: 'admin',
+      password: 'admin',
+      database: 'testdb',
+      synchronize: true,
+      entities: [join(__dirname, '../../src/entities/*.ts')],
+    })
+
+    const server = new ApolloServer({ resolvers, typeDefs })
+    return testDataSource
+      .initialize()
+      .then(() => {
+        console.log('TestDatabase OK.')
+        server.listen().then(({ url }) => console.log(url))
+      })
+      .catch((err) => {
+        console.log('Error:', err)
+      })
+  })
+
+  after(async () => {
+    await testDataSource.destroy()
+  })
+
+  it('should return Hello Taqtile', async () => {
     const queryResult = await axios.post('http://localhost:4000', {
       query: `
         query {
@@ -12,11 +46,6 @@ describe('Simples test', () => {
       `,
     })
     const { data } = queryResult.data
-    console.log(data)
-  })
-
-  it('should return hello world', () => {
-    const result = 'hello world'
-    assert.equal(result, 'hello world')
+    expect(data).to.have.property('hello').to.equal('Hello Taqtile')
   })
 })

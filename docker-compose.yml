@@ -13,7 +13,7 @@ services:
   testdb:
     image: bitnami/postgresql
     ports:
-      - 2345:2345
+      - 5433:5432
     volumes:
       - ./db/dumps:/app-db-dumps
     environment:

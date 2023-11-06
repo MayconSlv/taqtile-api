@@ -7,7 +7,7 @@
     "start:dev": "ts-node src/server.ts",
     "start": "tsx watch src/server.ts",
     "typeorm": "typeorm-ts-node-commonjs",
-    "test": "mocha -r ts-node/register test/**/*.spec.ts"
+    "test": "mocha -r ts-node/register --exit test/**/*.spec.ts"
   },
   "keywords": [],
   "author": "",
@@ -26,12 +26,13 @@
     "zod": "^3.22.4"
   },
   "devDependencies": {
+    "@types/chai": "^4.3.9",
     "@types/mocha": "^10.0.3",
     "@types/node": "^16.11.10",
     "@typescript-eslint/eslint-plugin": "^6.9.0",
     "@typescript-eslint/parser": "^6.9.0",
-    "assert": "^2.1.0",
     "axios": "^1.6.0",
+    "chai": "^4.3.10",
     "eslint": "^8.52.0",
     "eslint-config-prettier": "^9.0.0",
     "mocha": "^10.2.0",
