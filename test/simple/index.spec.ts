@@ -7,18 +7,20 @@ import { ApolloServer } from 'apollo-server'
 import { resolvers, typeDefs } from '../../src/graphql'
 
 describe('Query Test', () => {
-  const TestDataSource = new DataSource({
-    type: 'postgres',
-    host: 'localhost',
-    port: 5433,
-    username: 'admin',
-    password: 'admin',
-    database: 'testdb',
-    synchronize: true,
-    entities: [join(__dirname, '../../src/entities/*.ts')],
-  })
+  let TestDataSource: DataSource
 
   before(async () => {
+    TestDataSource = new DataSource({
+      type: 'postgres',
+      host: 'localhost',
+      port: 5433,
+      username: 'admin',
+      password: 'admin',
+      database: 'testdb',
+      synchronize: true,
+      entities: [join(__dirname, '../../src/entities/*.ts')],
+    })
+
     const server = new ApolloServer({ resolvers, typeDefs })
     return TestDataSource.initialize()
       .then(() => {
@@ -43,7 +45,6 @@ describe('Query Test', () => {
       `,
     })
     const { data } = queryResult.data
-    expect(data).to.have.property('hello')
     expect(data).to.have.property('hello').to.equal('Hello Taqtile')
   })
 })
