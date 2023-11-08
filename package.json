@@ -6,7 +6,7 @@
   "scripts": {
     "start": "ts-node -r dotenv/config src/server.ts dotenv_config_path=./.env.dev",
     "typeorm": "typeorm-ts-node-commonjs",
-    "test": "mocha -r ts-node/register -r dotenv/config --exit 'test/*/.ts' --dotenv dotenv_config_path=./.env.test"
+    "test": "mocha -r ts-node/register -r dotenv/config --exit 'test/**/*.ts' --dotenv dotenv_config_path=./.env.test"
   },
   "keywords": [],
   "author": "",
