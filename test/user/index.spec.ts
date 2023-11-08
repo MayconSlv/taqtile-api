@@ -4,24 +4,19 @@ import axios from 'axios'
 import { ApolloServer } from 'apollo-server'
 import { resolvers, typeDefs } from '../../src/graphql'
 import { AppDataSource } from '../../src/data-source'
+import { startServer } from '../../src/utils/start-server'
 
 describe('Query Test', () => {
   let server: ApolloServer
 
   before(async () => {
     server = new ApolloServer({ resolvers, typeDefs })
-    return AppDataSource.initialize()
-      .then(() => {
-        console.log(`${process.env.DB_DATABASE}, ok.`)
-        server.listen()
-      })
-      .catch((err) => {
-        console.log('Error:', err)
-      })
+    return startServer(server)
   })
 
   after(async () => {
     await AppDataSource.destroy()
+    await server.stop()
   })
 
   it('should return Hello Taqtile', async () => {
