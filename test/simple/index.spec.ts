@@ -1,32 +1,19 @@
 import { after, describe, it } from 'mocha'
 import { expect } from 'chai'
 import axios from 'axios'
-import { DataSource } from 'typeorm'
-import { join } from 'node:path'
 import { ApolloServer } from 'apollo-server'
 import { resolvers, typeDefs } from '../../src/graphql'
+import { AppDataSource } from '../../src/data-source'
 
 describe('Query Test', () => {
-  let testDataSource: DataSource
+  let server: ApolloServer
 
   before(async () => {
-    testDataSource = new DataSource({
-      type: 'postgres',
-      host: 'localhost',
-      port: 5433,
-      username: 'admin',
-      password: 'admin',
-      database: 'testdb',
-      synchronize: true,
-      entities: [join(__dirname, '../../src/entities/*.ts')],
-    })
-
-    const server = new ApolloServer({ resolvers, typeDefs })
-    return testDataSource
-      .initialize()
+    server = new ApolloServer({ resolvers, typeDefs })
+    return AppDataSource.initialize()
       .then(() => {
-        console.log('TestDatabase OK.')
-        server.listen().then(({ url }) => console.log(url))
+        console.log(`${process.env.DB_DATABASE}, ok.`)
+        server.listen()
       })
       .catch((err) => {
         console.log('Error:', err)
@@ -34,7 +21,7 @@ describe('Query Test', () => {
   })
 
   after(async () => {
-    await testDataSource.destroy()
+    await AppDataSource.destroy()
   })
 
   it('should return Hello Taqtile', async () => {
