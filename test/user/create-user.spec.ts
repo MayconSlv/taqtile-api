@@ -1,11 +1,11 @@
 import { describe, it, before, afterEach } from 'mocha'
 import { expect } from 'chai'
-import axios from 'axios'
 import { ApolloServer } from 'apollo-server'
 import { resolvers, typeDefs } from '../../src/graphql'
 import { AppDataSource } from '../../src/data-source'
 import { User } from '../../src/entities/User'
 import { startServer } from '../../src/utils/start-server'
+import { makeApiCall } from '../../src/utils/make-api-call'
 
 describe('Create User E2E', () => {
   let server: ApolloServer
@@ -33,29 +33,31 @@ describe('Create User E2E', () => {
       birthDate: '05-30-2002',
     }
 
-    const response = await axios({
-      url: 'http://localhost:4000',
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json; charset=utf-8',
-      },
-      data: {
-        query: `mutation($data: UserInput!) {
+    const query = `mutation($data: UserInput!) {
           createUser(data: $data) {
             id name email birthDate
           }
-        }`,
-        variables: {
-          data: userInput,
-        },
-      },
+        }`
+
+    const response = await makeApiCall({
+      query,
+      dataInput: userInput,
     })
 
+    // validate api response
     const { data } = response.data
     expect(data.createUser).to.have.property('id').that.is.a('string')
     expect(data.createUser).to.have.property('name').that.is.equal('John Doe')
     expect(data.createUser).to.have.property('email').that.is.equal('johndoe@example.com')
     expect(data.createUser).to.have.property('birthDate').that.is.equal('05-30-2002')
+
+    // validate user in database
+    const user = await AppDataSource.getRepository(User).findOne({ where: { email: userInput.email } })
+    expect(user).to.have.property('id').that.is.a('string')
+    expect(user).to.have.property('passwordHash').that.is.a('string')
+    expect(user).to.have.property('birthDate').that.is.a('string').to.equal('05-30-2002')
+    expect(user).to.have.property('name').that.is.a('string').to.equal('John Doe')
+    expect(user).to.have.property('email').that.is.a('string').to.equal('johndoe@example.com')
   })
 
   it('should not be able to create a user with same email twice', async () => {
@@ -74,22 +76,15 @@ describe('Create User E2E', () => {
       passwordHash: '123456a',
     })
 
-    const response = await axios({
-      url: 'http://localhost:4000',
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json; charset=utf-8',
-      },
-      data: {
-        query: `mutation($data: UserInput!) {
-          createUser(data: $data) {
-            id name
-          }
-        }`,
-        variables: {
-          data: userInput,
-        },
-      },
+    const query = `mutation($data: UserInput!) {
+      createUser(data: $data) {
+        id name email birthDate
+      }
+    }`
+
+    const response = await makeApiCall({
+      query,
+      dataInput: userInput,
     })
 
     const { errors } = response.data
@@ -105,25 +100,21 @@ describe('Create User E2E', () => {
       birthDate: '05-30-2002',
     }
 
-    const response = await axios({
-      url: 'http://localhost:4000',
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json; charset=utf-8',
-      },
-      data: {
-        query: `mutation($data: UserInput!) {
-          createUser(data: $data) {
-            id name email birthDate
-          }
-        }`,
-        variables: {
-          data: userInput,
-        },
-      },
+    const query = `mutation($data: UserInput!) {
+      createUser(data: $data) {
+        id name email birthDate
+      }
+    }`
+
+    const response = await makeApiCall({
+      query,
+      dataInput: userInput,
     })
 
-    expect(response.data).to.have.property('errors')
+    const errorMessage = response.data.errors[0].message
+    const error = JSON.parse(errorMessage)
+
+    expect(error[0]).to.have.property('message').that.is.equal('The password must contain 1 letter and 1 digit.')
   })
 
   it('should not be able to create a user with invalid email', async () => {
@@ -134,24 +125,20 @@ describe('Create User E2E', () => {
       birthDate: '05-30-2002',
     }
 
-    const response = await axios({
-      url: 'http://localhost:4000',
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json; charset=utf-8',
-      },
-      data: {
-        query: `mutation($data: UserInput!) {
-          createUser(data: $data) {
-            id name email birthDate
-          }
-        }`,
-        variables: {
-          data: userInput,
-        },
-      },
+    const query = `mutation($data: UserInput!) {
+      createUser(data: $data) {
+        id name email birthDate
+      }
+    }`
+
+    const response = await makeApiCall({
+      query,
+      dataInput: userInput,
     })
 
-    expect(response.data).to.have.property('errors')
+    const errorMessage = response.data.errors[0].message
+    const error = JSON.parse(errorMessage)
+
+    expect(error[0]).to.have.property('message').that.is.equal('Invalid email')
   })
 })
