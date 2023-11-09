@@ -1,9 +1,17 @@
 import { z } from 'zod'
 import { User } from '../../entities/User'
 import { CreateUserService } from '../../services/create-user-service'
+import { AuthenticateService } from '../../services/authenticate-service'
 
 interface UserInputData {
   data: User
+}
+
+interface LoginInputData {
+  data: {
+    email: string
+    password: string
+  }
 }
 
 export = {
@@ -32,6 +40,24 @@ export = {
       const { user } = await createUser.execute({ name, email, password, birthDate })
 
       return user
+    },
+    login: async (_, { data }: LoginInputData) => {
+      const loginInputDataSchema = z.object({
+        email: z.string().email(),
+        password: z.string(),
+      })
+
+      const { email, password } = loginInputDataSchema.parse(data)
+
+      const authenticateUser = new AuthenticateService()
+      const { user } = await authenticateUser.execute({ email, password })
+
+      const token = 'the_token'
+
+      return {
+        user,
+        token,
+      }
     },
   },
   Query: {
