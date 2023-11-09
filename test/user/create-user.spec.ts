@@ -97,7 +97,7 @@ describe('Create User E2E', () => {
     expect(errors[0]).to.have.property('message').that.is.equal('User already exists with same email.')
   })
 
-  it('should not be able create a user with weak password', async () => {
+  it('should not be able create a password without letters', async () => {
     const userInput = {
       name: 'John Doe',
       email: 'johndoe@example.com',
@@ -120,6 +120,56 @@ describe('Create User E2E', () => {
     const error = JSON.parse(errorMessage)
 
     expect(error[0]).to.have.property('message').that.is.equal('The password must contain 1 letter and 1 digit.')
+  })
+
+  it('should not be able create a password without numbers', async () => {
+    const userInput = {
+      name: 'John Doe',
+      email: 'johndoe@example.com',
+      password: 'johndoe',
+      birthDate: '05-30-2002',
+    }
+
+    const query = `mutation($data: UserInput!) {
+      createUser(data: $data) {
+        id name email birthDate
+      }
+    }`
+
+    const response = await makeApiCall({
+      query,
+      dataInput: userInput,
+    })
+
+    const errorMessage = response.data.errors[0].message
+    const error = JSON.parse(errorMessage)
+
+    expect(error[0]).to.have.property('message').that.is.equal('The password must contain 1 letter and 1 digit.')
+  })
+
+  it('should not be able to create a password with less than 6 characters', async () => {
+    const userInput = {
+      name: 'John Doe',
+      email: 'johndoe@example.com',
+      password: '12345',
+      birthDate: '05-30-2002',
+    }
+
+    const query = `mutation($data: UserInput!) {
+      createUser(data: $data) {
+        id name email birthDate
+      }
+    }`
+
+    const response = await makeApiCall({
+      query,
+      dataInput: userInput,
+    })
+
+    const errorMessage = response.data.errors[0].message
+    const error = JSON.parse(errorMessage)
+
+    expect(error[0]).to.have.property('message').that.is.equal('The password must contain 6 characters.')
   })
 
   it('should not be able to create a user with invalid email', async () => {
