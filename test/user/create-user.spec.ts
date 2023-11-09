@@ -6,6 +6,7 @@ import { AppDataSource } from '../../src/data-source'
 import { User } from '../../src/entities/User'
 import { startServer } from '../../src/utils/start-server'
 import { makeApiCall } from '../../src/utils/make-api-call'
+import { compare } from 'bcryptjs'
 
 describe('Create User E2E', () => {
   let server: ApolloServer
@@ -52,12 +53,16 @@ describe('Create User E2E', () => {
     expect(data.createUser).to.have.property('birthDate').that.is.equal('05-30-2002')
 
     // validate user in database
-    const user = await AppDataSource.getRepository(User).findOne({ where: { email: userInput.email } })
+    const user = await AppDataSource.getRepository(User).findOneOrFail({ where: { email: userInput.email } })
     expect(user).to.have.property('id').that.is.a('string')
-    expect(user).to.have.property('passwordHash').that.is.a('string')
     expect(user).to.have.property('birthDate').that.is.a('string').to.equal('05-30-2002')
     expect(user).to.have.property('name').that.is.a('string').to.equal('John Doe')
     expect(user).to.have.property('email').that.is.a('string').to.equal('johndoe@example.com')
+
+    // compare hashed password
+    const password = await compare(userInput.password, user.passwordHash)
+    expect(user).to.have.property('passwordHash').that.is.a('string')
+    expect(password).to.equal(true)
   })
 
   it('should not be able to create a user with same email twice', async () => {
@@ -89,7 +94,7 @@ describe('Create User E2E', () => {
 
     const { errors } = response.data
     expect(errors[0]).to.be.an('object')
-    expect(errors[0]).to.have.property('message').that.is.equal('Email address already exists')
+    expect(errors[0]).to.have.property('message').that.is.equal('User already exists with same email.')
   })
 
   it('should not be able create a user with weak password', async () => {
