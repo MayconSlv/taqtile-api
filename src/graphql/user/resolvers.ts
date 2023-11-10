@@ -2,6 +2,7 @@ import { z } from 'zod'
 import { User } from '../../entities/User'
 import { CreateUserService } from '../../services/create-user-service'
 import { AuthenticateService } from '../../services/authenticate-service'
+import jwt from 'jsonwebtoken'
 
 interface UserInputData {
   data: User
@@ -11,6 +12,7 @@ interface LoginInputData {
   data: {
     email: string
     password: string
+    rememberMe: boolean
   }
 }
 
@@ -45,14 +47,15 @@ export = {
       const loginInputDataSchema = z.object({
         email: z.string().email(),
         password: z.string(),
+        rememberMe: z.boolean().default(false),
       })
 
-      const { email, password } = loginInputDataSchema.parse(data)
+      const { email, password, rememberMe } = loginInputDataSchema.parse(data)
 
       const authenticateUser = new AuthenticateService()
       const { user } = await authenticateUser.execute({ email, password })
 
-      const token = 'the_token'
+      const token = jwt.sign({ sub: user.id }, String(process.env.JWT_SECRET), { expiresIn: rememberMe ? '7d' : '1h' })
 
       return {
         user,
