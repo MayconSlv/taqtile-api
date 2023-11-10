@@ -4,10 +4,9 @@
   "description": "<h1 align=\"center\">   Taqtile API </h1>",
   "main": "index.js",
   "scripts": {
-    "start:dev": "ts-node src/server.ts",
-    "start": "tsx watch src/server.ts",
+    "start": "ts-node -r dotenv/config src/server.ts dotenv_config_path=./.env.dev",
     "typeorm": "typeorm-ts-node-commonjs",
-    "test": "mocha -r ts-node/register --exit test/**/*.spec.ts"
+    "test": "mocha -r ts-node/register -r dotenv/config --exit 'test/**/*.ts' --dotenv dotenv_config_path=./.env.test"
   },
   "keywords": [],
   "author": "",
@@ -19,6 +18,7 @@
     "@types/bcryptjs": "^2.4.5",
     "apollo-server": "^3.12.1",
     "bcryptjs": "^2.4.3",
+    "dotenv": "^16.3.1",
     "graphql": "^16.8.1",
     "pg": "^8.4.0",
     "reflect-metadata": "^0.1.13",

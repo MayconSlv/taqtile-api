@@ -1,6 +1,7 @@
 import { AppDataSource } from '../data-source'
 import { User } from '../entities/User'
 import { hash } from 'bcryptjs'
+import { UserWithSameEmailError } from './errros/user-with-same-email-error'
 
 interface CreateUserServiceRequest {
   name: string
@@ -19,7 +20,7 @@ export class CreateUserService {
 
     const userWithSameEmail = await repo.findOne({ where: { email } })
     if (userWithSameEmail) {
-      throw new Error('Email address already exists')
+      throw new UserWithSameEmailError()
     }
 
     const passwordHash = await hash(password, 6)
