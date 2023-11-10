@@ -11,6 +11,7 @@ export = gql`
   input LoginInput {
     email: String!
     password: String!
+    rememberMe: Boolean!
   }
 
   type User {
