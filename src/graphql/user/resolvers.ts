@@ -2,7 +2,7 @@ import { z } from 'zod'
 import { User } from '../../entities/User'
 import { CreateUserService } from '../../services/create-user-service'
 import { AuthenticateService } from '../../services/authenticate-service'
-import jwt from 'jsonwebtoken'
+import { verifyToken } from '../../middleware/verify-token'
 
 interface UserInputData {
   data: User
@@ -18,7 +18,9 @@ interface LoginInputData {
 
 export = {
   Mutation: {
-    createUser: async (_, { data }: UserInputData) => {
+    createUser: async (_, { data }: UserInputData, { token }) => {
+      verifyToken(token)
+
       const userInputDataSchema = z.object({
         name: z.string(),
         email: z.string().email(),
@@ -53,9 +55,7 @@ export = {
       const { email, password, rememberMe } = loginInputDataSchema.parse(data)
 
       const authenticateUser = new AuthenticateService()
-      const { user } = await authenticateUser.execute({ email, password })
-
-      const token = jwt.sign({ sub: user.id }, String(process.env.JWT_SECRET), { expiresIn: rememberMe ? '7d' : '1h' })
+      const { user, token } = await authenticateUser.execute({ email, password, rememberMe })
 
       return {
         user,
@@ -64,7 +64,8 @@ export = {
     },
   },
   Query: {
-    hello: () => {
+    hello: (_, data, { isAuthenticated }) => {
+      console.log(isAuthenticated())
       return 'Hello Taqtile'
     },
   },

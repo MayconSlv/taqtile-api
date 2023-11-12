@@ -3,7 +3,17 @@ import { ApolloServer } from 'apollo-server'
 import { AppDataSource } from './data-source'
 import { resolvers, typeDefs } from './graphql/index'
 
-const server = new ApolloServer({ resolvers, typeDefs })
+const server = new ApolloServer({
+  resolvers,
+  typeDefs,
+  context: ({ req }) => {
+    const token = req.headers.authorization
+
+    return {
+      token,
+    }
+  },
+})
 
 AppDataSource.initialize()
   .then(() => {
