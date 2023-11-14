@@ -64,8 +64,7 @@ export = {
     },
   },
   Query: {
-    hello: (_, data, { isAuthenticated }) => {
-      console.log(isAuthenticated())
+    hello: () => {
       return 'Hello Taqtile'
     },
   },
