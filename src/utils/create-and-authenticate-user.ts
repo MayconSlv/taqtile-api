@@ -1,33 +1,20 @@
-import axios from 'axios'
-import { CreateUserService } from '../services/create-user-service'
+import { hash } from 'bcryptjs'
+import { AppDataSource } from '../data-source'
+import { User } from '../entities/User'
+import { sign } from 'jsonwebtoken'
 
 export async function createAndAuthenticateUser() {
-  const createUser = new CreateUserService()
-  await createUser.execute({
+  const passwordHash = await hash('123456a', 6)
+  const repo = AppDataSource.getRepository(User)
+
+  const user = await repo.save({
     name: 'John Doe',
     email: 'johndoe@email.com',
     birthDate: '12-12-1990',
-    password: '123456a',
+    passwordHash,
   })
 
-  const authResponse = await axios.post('http://localhost:4000', {
-    query: `mutation ($data: LoginInput) {
-      login(data: $data) {
-        token user {
-          name email id birthDate
-        }
-      }
-    }`,
-    variables: {
-      data: {
-        email: 'johndoe@email.com',
-        password: '123456a',
-        rememberMe: false,
-      },
-    },
-  })
-
-  const { token } = authResponse.data.data.login
+  const token = sign({ sub: user.id }, String(process.env.JWT_SECRET), { expiresIn: '1h' })
 
   return {
     token,

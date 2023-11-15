@@ -1,20 +1,39 @@
-import { after, describe, it } from 'mocha'
-import { ApolloServer } from 'apollo-server'
-import { resolvers, typeDefs } from '../../src/graphql'
+import { after, beforeEach, describe, it } from 'mocha'
 import { AppDataSource } from '../../src/data-source'
-import { startServer } from '../../src/utils/start-server'
 import { User } from '../../src/entities/User'
-import { CreateUserService } from '../../src/services/create-user-service'
 import { ILoginRequest, ILoginResponse } from '../../src/models'
 import { expect } from 'chai'
 import { makeApiCall } from '../../src/utils/make-api-call'
+import { hash } from 'bcryptjs'
+import { startServer } from '../../src/utils/start-server'
+import { createApolloServer } from '../../src/lib/apollo'
+import { ApolloServer } from 'apollo-server'
 
-describe('Query Test', () => {
-  let server: ApolloServer
+let server: ApolloServer
+const query = `mutation ($data: LoginInput) {
+  login(data: $data) {
+    token user {
+      name email id birthDate
+    }
+  }
+}`
 
+describe('Authenticate User', () => {
   before(async () => {
-    server = new ApolloServer({ resolvers, typeDefs })
-    return startServer(server)
+    server = createApolloServer()
+    await startServer(server)
+  })
+
+  beforeEach(async () => {
+    const passwordHash = await hash('123456a', 6)
+
+    const repo = AppDataSource.getRepository(User)
+    await repo.save({
+      name: 'John Doe',
+      email: 'johndoe@email.com',
+      birthDate: '12-12-1990',
+      passwordHash,
+    })
   })
 
   afterEach(async () => {
@@ -28,22 +47,8 @@ describe('Query Test', () => {
   })
 
   it('should be able to authenticate a user', async () => {
-    const createUser = new CreateUserService()
-    await createUser.execute({
-      name: 'John Doe',
-      email: 'johndoe@email.com',
-      birthDate: '12-12-1990',
-      password: '123456a',
-    })
-
     const authResponse = await makeApiCall<ILoginRequest, ILoginResponse>({
-      query: `mutation ($data: LoginInput) {
-      login(data: $data) {
-        token user {
-          name email id birthDate
-        }
-      }
-    }`,
+      query,
       dataInput: {
         email: 'johndoe@email.com',
         password: '123456a',
@@ -60,22 +65,8 @@ describe('Query Test', () => {
   })
 
   it('should not be able to authenticate a user with wrong email', async () => {
-    const createUser = new CreateUserService()
-    await createUser.execute({
-      name: 'John Doe',
-      email: 'johndoe@email.com',
-      birthDate: '12-12-1990',
-      password: '123456a',
-    })
-
     const authResponse = await makeApiCall<ILoginRequest, ILoginResponse>({
-      query: `mutation ($data: LoginInput) {
-      login(data: $data) {
-        token user {
-          name email id birthDate
-        }
-      }
-    }`,
+      query,
       dataInput: {
         email: 'wrong@email.com',
         password: '123456a',
@@ -88,22 +79,8 @@ describe('Query Test', () => {
   })
 
   it('should not be able to authenticate a user with wrong password', async () => {
-    const createUser = new CreateUserService()
-    await createUser.execute({
-      name: 'John Doe',
-      email: 'johndoe@email.com',
-      birthDate: '12-12-1990',
-      password: '123456a',
-    })
-
     const authResponse = await makeApiCall<ILoginRequest, ILoginResponse>({
-      query: `mutation ($data: LoginInput) {
-      login(data: $data) {
-        token user {
-          name email id birthDate
-        }
-      }
-    }`,
+      query,
       dataInput: {
         email: 'johndoe@email.com',
         password: 'wrongpassword',

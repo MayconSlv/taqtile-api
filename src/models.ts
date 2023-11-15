@@ -1,5 +1,5 @@
 import { GraphQLError } from 'graphql'
-import { User } from '../entities/User'
+import { User } from './entities/User'
 
 interface LoginResponseData {
   login: {

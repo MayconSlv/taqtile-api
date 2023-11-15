@@ -1,7 +1,5 @@
-import { describe, it, before, afterEach } from 'mocha'
+import { describe, it, before, afterEach, beforeEach } from 'mocha'
 import { expect } from 'chai'
-import { ApolloServer } from 'apollo-server'
-import { resolvers, typeDefs } from '../../src/graphql'
 import { AppDataSource } from '../../src/data-source'
 import { User } from '../../src/entities/User'
 import { startServer } from '../../src/utils/start-server'
@@ -9,23 +7,26 @@ import { makeApiCall } from '../../src/utils/make-api-call'
 import { compare } from 'bcryptjs'
 import { ICreateUserRequest, ICreateUserResponse } from '../../src/models'
 import { createAndAuthenticateUser } from '../../src/utils/create-and-authenticate-user'
+import { createApolloServer } from '../../src/lib/apollo'
+import { ApolloServer } from 'apollo-server'
 
-describe('Create User E2E', () => {
-  let server: ApolloServer
+let token: string
+let server: ApolloServer
+const query = `mutation($data: UserInput!) {
+    createUser(data: $data) {
+      id name email birthDate
+    }
+  }`
 
+describe('Create User', () => {
   before(async () => {
-    server = new ApolloServer({
-      resolvers,
-      typeDefs,
-      context: ({ req }) => {
-        const token = req.headers.authorization
-
-        return {
-          token,
-        }
-      },
-    })
+    server = createApolloServer()
     return startServer(server)
+  })
+
+  beforeEach(async () => {
+    const user = await createAndAuthenticateUser()
+    token = user.token
   })
 
   afterEach(async () => {
@@ -39,15 +40,9 @@ describe('Create User E2E', () => {
   })
 
   it('should be able to crate a user', async () => {
-    const { token } = await createAndAuthenticateUser()
-
     const response = await makeApiCall<ICreateUserRequest, ICreateUserResponse>({
       token,
-      query: `mutation($data: UserInput!) {
-        createUser(data: $data) {
-          id name email birthDate
-        }
-      }`,
+      query,
       dataInput: {
         name: 'John Doe',
         email: 'johndoe@example.com',
@@ -79,11 +74,7 @@ describe('Create User E2E', () => {
   it('should not be able to create a user with invalid token', async () => {
     const response = await makeApiCall<ICreateUserRequest, ICreateUserResponse>({
       token: 'invalid-token',
-      query: `mutation($data: UserInput!) {
-        createUser(data: $data) {
-          id name email birthDate
-        }
-      }`,
+      query,
       dataInput: {
         name: 'John Doe',
         email: 'johndoe@example.com',
@@ -97,8 +88,6 @@ describe('Create User E2E', () => {
   })
 
   it('should not be able to create a user with same email twice', async () => {
-    const { token } = await createAndAuthenticateUser()
-
     const userRepository = AppDataSource.getRepository(User)
     await userRepository.save({
       name: 'John Doe',
@@ -108,11 +97,7 @@ describe('Create User E2E', () => {
     })
 
     const response = await makeApiCall<ICreateUserRequest, ICreateUserResponse>({
-      query: `mutation($data: UserInput!) {
-        createUser(data: $data) {
-          id name email birthDate
-        }
-      }`,
+      query,
       dataInput: {
         name: 'John Doe',
         email: 'johndoe@example.com',
@@ -128,14 +113,8 @@ describe('Create User E2E', () => {
   })
 
   it('should not be able create a password without letters', async () => {
-    const { token } = await createAndAuthenticateUser()
-
     const response = await makeApiCall<ICreateUserRequest, ICreateUserResponse>({
-      query: `mutation($data: UserInput!) {
-        createUser(data: $data) {
-          id name email birthDate
-        }
-      }`,
+      query,
       dataInput: {
         name: 'John Doe',
         email: 'johndoe@example.com',
@@ -152,14 +131,8 @@ describe('Create User E2E', () => {
   })
 
   it('should not be able create a password without numbers', async () => {
-    const { token } = await createAndAuthenticateUser()
-
     const response = await makeApiCall<ICreateUserRequest, ICreateUserResponse>({
-      query: `mutation($data: UserInput!) {
-        createUser(data: $data) {
-          id name email birthDate
-        }
-      }`,
+      query,
       dataInput: {
         name: 'John Doe',
         email: 'johndoe@example.com',
@@ -176,14 +149,8 @@ describe('Create User E2E', () => {
   })
 
   it('should not be able to create a password with less than 6 characters', async () => {
-    const { token } = await createAndAuthenticateUser()
-
     const response = await makeApiCall<ICreateUserRequest, ICreateUserResponse>({
-      query: `mutation($data: UserInput!) {
-        createUser(data: $data) {
-          id name email birthDate
-        }
-      }`,
+      query,
       dataInput: {
         name: 'John Doe',
         email: 'johndoe@example.com',
@@ -200,14 +167,8 @@ describe('Create User E2E', () => {
   })
 
   it('should not be able to create a user with invalid email', async () => {
-    const { token } = await createAndAuthenticateUser()
-
     const response = await makeApiCall<ICreateUserRequest, ICreateUserResponse>({
-      query: `mutation($data: UserInput!) {
-        createUser(data: $data) {
-          id name email birthDate
-        }
-      }`,
+      query,
       dataInput: {
         name: 'John Doe',
         email: 'invalidEmail', // invalid email
