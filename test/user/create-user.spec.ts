@@ -1,19 +1,32 @@
-import { describe, it, before, afterEach } from 'mocha'
+import { describe, it, before, afterEach, beforeEach } from 'mocha'
 import { expect } from 'chai'
-import { ApolloServer } from 'apollo-server'
-import { resolvers, typeDefs } from '../../src/graphql'
 import { AppDataSource } from '../../src/data-source'
 import { User } from '../../src/entities/User'
 import { startServer } from '../../src/utils/start-server'
 import { makeApiCall } from '../../src/utils/make-api-call'
 import { compare } from 'bcryptjs'
+import { ICreateUserRequest, ICreateUserResponse } from '../../src/models'
+import { createAndAuthenticateUser } from '../../src/utils/create-and-authenticate-user'
+import { createApolloServer } from '../../src/lib/apollo'
+import { ApolloServer } from 'apollo-server'
 
-describe('Create User E2E', () => {
-  let server: ApolloServer
+let token: string
+let server: ApolloServer
+const query = `mutation($data: UserInput!) {
+    createUser(data: $data) {
+      id name email birthDate
+    }
+  }`
 
+describe('Create User', () => {
   before(async () => {
-    server = new ApolloServer({ resolvers, typeDefs })
+    server = createApolloServer()
     return startServer(server)
+  })
+
+  beforeEach(async () => {
+    const user = await createAndAuthenticateUser()
+    token = user.token
   })
 
   afterEach(async () => {
@@ -27,22 +40,15 @@ describe('Create User E2E', () => {
   })
 
   it('should be able to crate a user', async () => {
-    const userInput = {
-      name: 'John Doe',
-      email: 'johndoe@example.com',
-      password: '123456a',
-      birthDate: '05-30-2002',
-    }
-
-    const query = `mutation($data: UserInput!) {
-          createUser(data: $data) {
-            id name email birthDate
-          }
-        }`
-
-    const response = await makeApiCall({
+    const response = await makeApiCall<ICreateUserRequest, ICreateUserResponse>({
+      token,
       query,
-      dataInput: userInput,
+      dataInput: {
+        name: 'John Doe',
+        email: 'johndoe@example.com',
+        password: '123456a',
+        birthDate: '05-30-2002',
+      },
     })
 
     // validate api response
@@ -53,26 +59,35 @@ describe('Create User E2E', () => {
     expect(data.createUser).to.have.property('birthDate').that.is.equal('05-30-2002')
 
     // validate user in database
-    const user = await AppDataSource.getRepository(User).findOneOrFail({ where: { email: userInput.email } })
+    const user = await AppDataSource.getRepository(User).findOneOrFail({ where: { email: 'johndoe@example.com' } })
     expect(user).to.have.property('id').that.is.a('string')
     expect(user).to.have.property('birthDate').that.is.a('string').to.equal('05-30-2002')
     expect(user).to.have.property('name').that.is.a('string').to.equal('John Doe')
     expect(user).to.have.property('email').that.is.a('string').to.equal('johndoe@example.com')
 
     // compare hashed password
-    const password = await compare(userInput.password, user.passwordHash)
+    const password = await compare('123456a', user.passwordHash)
     expect(user).to.have.property('passwordHash').that.is.a('string')
     expect(password).to.equal(true)
   })
 
-  it('should not be able to create a user with same email twice', async () => {
-    const userInput = {
-      name: 'John Doe',
-      email: 'johndoe@example.com',
-      password: '123456a',
-      birthDate: '05-30-2002',
-    }
+  it('should not be able to create a user with invalid token', async () => {
+    const response = await makeApiCall<ICreateUserRequest, ICreateUserResponse>({
+      token: 'invalid-token',
+      query,
+      dataInput: {
+        name: 'John Doe',
+        email: 'johndoe@example.com',
+        password: '123456a',
+        birthDate: '05-30-2002',
+      },
+    })
 
+    const { errors } = response.data
+    expect(errors[0]).to.have.property('message').that.is.equal('UNAUTHORIZED.')
+  })
+
+  it('should not be able to create a user with same email twice', async () => {
     const userRepository = AppDataSource.getRepository(User)
     await userRepository.save({
       name: 'John Doe',
@@ -81,15 +96,15 @@ describe('Create User E2E', () => {
       passwordHash: '123456a',
     })
 
-    const query = `mutation($data: UserInput!) {
-      createUser(data: $data) {
-        id name email birthDate
-      }
-    }`
-
-    const response = await makeApiCall({
+    const response = await makeApiCall<ICreateUserRequest, ICreateUserResponse>({
       query,
-      dataInput: userInput,
+      dataInput: {
+        name: 'John Doe',
+        email: 'johndoe@example.com',
+        password: '123456a',
+        birthDate: '05-30-2002',
+      },
+      token,
     })
 
     const { errors } = response.data
@@ -98,22 +113,15 @@ describe('Create User E2E', () => {
   })
 
   it('should not be able create a password without letters', async () => {
-    const userInput = {
-      name: 'John Doe',
-      email: 'johndoe@example.com',
-      password: '123456',
-      birthDate: '05-30-2002',
-    }
-
-    const query = `mutation($data: UserInput!) {
-      createUser(data: $data) {
-        id name email birthDate
-      }
-    }`
-
-    const response = await makeApiCall({
+    const response = await makeApiCall<ICreateUserRequest, ICreateUserResponse>({
       query,
-      dataInput: userInput,
+      dataInput: {
+        name: 'John Doe',
+        email: 'johndoe@example.com',
+        password: '123456', // password without letters
+        birthDate: '05-30-2002',
+      },
+      token,
     })
 
     const errorMessage = response.data.errors[0].message
@@ -123,22 +131,15 @@ describe('Create User E2E', () => {
   })
 
   it('should not be able create a password without numbers', async () => {
-    const userInput = {
-      name: 'John Doe',
-      email: 'johndoe@example.com',
-      password: 'johndoe',
-      birthDate: '05-30-2002',
-    }
-
-    const query = `mutation($data: UserInput!) {
-      createUser(data: $data) {
-        id name email birthDate
-      }
-    }`
-
-    const response = await makeApiCall({
+    const response = await makeApiCall<ICreateUserRequest, ICreateUserResponse>({
       query,
-      dataInput: userInput,
+      dataInput: {
+        name: 'John Doe',
+        email: 'johndoe@example.com',
+        password: 'johndoe', // password without numbers
+        birthDate: '05-30-2002',
+      },
+      token,
     })
 
     const errorMessage = response.data.errors[0].message
@@ -148,22 +149,15 @@ describe('Create User E2E', () => {
   })
 
   it('should not be able to create a password with less than 6 characters', async () => {
-    const userInput = {
-      name: 'John Doe',
-      email: 'johndoe@example.com',
-      password: '12345',
-      birthDate: '05-30-2002',
-    }
-
-    const query = `mutation($data: UserInput!) {
-      createUser(data: $data) {
-        id name email birthDate
-      }
-    }`
-
-    const response = await makeApiCall({
+    const response = await makeApiCall<ICreateUserRequest, ICreateUserResponse>({
       query,
-      dataInput: userInput,
+      dataInput: {
+        name: 'John Doe',
+        email: 'johndoe@example.com',
+        password: '12345', // password with 5 characters
+        birthDate: '05-30-2002',
+      },
+      token,
     })
 
     const errorMessage = response.data.errors[0].message
@@ -173,22 +167,15 @@ describe('Create User E2E', () => {
   })
 
   it('should not be able to create a user with invalid email', async () => {
-    const userInput = {
-      name: 'John Doe',
-      email: 'invalidEmail',
-      password: '123456a',
-      birthDate: '05-30-2002',
-    }
-
-    const query = `mutation($data: UserInput!) {
-      createUser(data: $data) {
-        id name email birthDate
-      }
-    }`
-
-    const response = await makeApiCall({
+    const response = await makeApiCall<ICreateUserRequest, ICreateUserResponse>({
       query,
-      dataInput: userInput,
+      dataInput: {
+        name: 'John Doe',
+        email: 'invalidEmail', // invalid email
+        password: '12345',
+        birthDate: '05-30-2002',
+      },
+      token,
     })
 
     const errorMessage = response.data.errors[0].message
