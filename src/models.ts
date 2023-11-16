@@ -34,3 +34,16 @@ export interface ICreateUserResponse {
   data: CreateUserData
   errors: GraphQLError[]
 }
+
+interface GetUserData {
+  user: User
+}
+
+export interface IGetUserRequest {
+  userId: string
+}
+
+export interface IGetUserResposne {
+  data: GetUserData
+  errors: GraphQLError[]
+}

@@ -3,6 +3,7 @@ import { User } from '../../entities/User'
 import { CreateUserService } from '../../services/create-user-service'
 import { AuthenticateService } from '../../services/authenticate-service'
 import { verifyToken } from '../../middleware/verify-token'
+import { GetUserService } from '../../services/get-user-by-id-service'
 
 interface UserInputData {
   data: User
@@ -13,6 +14,12 @@ interface LoginInputData {
     email: string
     password: string
     rememberMe: boolean
+  }
+}
+
+interface GetUserData {
+  data: {
+    userId: string
   }
 }
 
@@ -64,8 +71,19 @@ export = {
     },
   },
   Query: {
-    hello: () => {
-      return 'Hello Taqtile'
+    user: async (_, { data }: GetUserData, { token }) => {
+      verifyToken(token)
+
+      const getUserDataSchema = z.object({
+        userId: z.string().uuid(),
+      })
+
+      const { userId } = getUserDataSchema.parse(data)
+
+      const getUser = new GetUserService()
+      const { user } = await getUser.execute({ userId })
+
+      return user
     },
   },
 }

@@ -14,6 +14,10 @@ export = gql`
     rememberMe: Boolean!
   }
 
+  input GetUserInput {
+    userId: String!
+  }
+
   type User {
     id: ID!
     name: String!
@@ -32,6 +36,6 @@ export = gql`
   }
 
   type Query {
-    hello: String
+    user(data: GetUserInput): User!
   }
 `
