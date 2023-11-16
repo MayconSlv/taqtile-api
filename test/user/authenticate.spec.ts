@@ -12,7 +12,8 @@ import { ApolloServer } from 'apollo-server'
 let server: ApolloServer
 const query = `mutation ($data: LoginInput) {
   login(data: $data) {
-    token user {
+    token,
+    user {
       name email id birthDate
     }
   }
