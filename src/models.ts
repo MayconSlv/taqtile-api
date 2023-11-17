@@ -1,24 +1,26 @@
 import { GraphQLError } from 'graphql'
 import { User } from './entities/User'
 
+interface BaseResponseData<T> {
+  data: T
+  errors: GraphQLError[]
+}
+
+// Login REQUEST and RESPONSE data
 interface LoginResponseData {
   login: {
     token: string
     user: User
   }
 }
-
-export interface ILoginResponse {
-  data: LoginResponseData
-  errors: GraphQLError[]
-}
-
 export interface ILoginRequest {
   email: string
   password: string
   rememberMe: boolean
 }
+export interface ILoginResponse extends BaseResponseData<LoginResponseData> {}
 
+// Create User REQUEST and RESPONSE data
 interface CreateUserData {
   createUser: {
     user: User
@@ -30,20 +32,13 @@ export interface ICreateUserRequest {
   birthDate: string
   password: string
 }
-export interface ICreateUserResponse {
-  data: CreateUserData
-  errors: GraphQLError[]
-}
+export interface ICreateUserResponse extends BaseResponseData<CreateUserData> {}
 
+// Get a Specific User REQUEST and RESPONSE data
 interface GetUserData {
   user: User
 }
-
 export interface IGetUserRequest {
   userId: string
 }
-
-export interface IGetUserResposne {
-  data: GetUserData
-  errors: GraphQLError[]
-}
+export interface IGetUserResposne extends BaseResponseData<GetUserData> {}
