@@ -37,5 +37,6 @@ export = gql`
 
   type Query {
     user(data: GetUserInput): User!
+    users: [User!]!
   }
 `
