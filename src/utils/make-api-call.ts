@@ -3,7 +3,7 @@ import axios, { AxiosResponse } from 'axios'
 interface ApiCallRequest<TDataInput> {
   query: string
   token?: string
-  dataInput: TDataInput
+  dataInput?: TDataInput
 }
 
 export async function makeApiCall<TDataInput, TResponseData>({

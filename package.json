@@ -15,6 +15,7 @@
     "@graphql-tools/load": "^8.0.0",
     "@graphql-tools/load-files": "^7.0.0",
     "@graphql-tools/merge": "^9.0.0",
+    "@ngneat/falso": "^7.1.1",
     "@types/bcryptjs": "^2.4.5",
     "apollo-server": "^3.12.1",
     "bcryptjs": "^2.4.3",
