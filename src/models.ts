@@ -42,3 +42,12 @@ export interface IGetUserRequest {
   userId: string
 }
 export interface IGetUserResposne extends BaseResponseData<GetUserData> {}
+
+// Fetch Many Users Response data
+interface FetchUsersData {
+  users: User[]
+}
+export interface IFetchUsersResponse extends BaseResponseData<FetchUsersData> {}
+
+// for queries without request data
+export interface EmptyRequestData {}
