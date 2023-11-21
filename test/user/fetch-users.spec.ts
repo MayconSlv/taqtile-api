@@ -16,7 +16,7 @@ const query = `query{
   }
 }`
 
-describe.only('Fetch Many Users', () => {
+describe('Fetch Many Users', () => {
   before(async () => {
     server = createApolloServer()
     await startServer(server)
@@ -42,11 +42,16 @@ describe.only('Fetch Many Users', () => {
     })
 
     const { data } = fetchResponse.data
-    expect(data).to.have.property('users').that.is.an('array')
-    expect(data.users).to.have.lengthOf(50)
-    expect(data.users[0]).to.have.property('name').that.is.a('string')
-    expect(data.users[0]).to.have.property('email').that.is.a('string')
-    expect(data.users[0]).to.have.property('birthDate').that.is.a('string')
-    expect(data.users[0]).to.have.property('id').that.is.a('string')
+
+    const usersInDatabase = await AppDataSource.getRepository(User).find()
+    const usersFetchResponse = data.users
+
+    usersFetchResponse.forEach((fetchUser) => {
+      const dbUser = usersInDatabase.find((user) => user.id === fetchUser.id)!
+      expect(fetchUser.name).that.is.a('string').to.equal(dbUser.name)
+      expect(fetchUser.email).that.is.a('string').to.equal(dbUser.email)
+      expect(fetchUser.id).that.is.a('string').to.equal(dbUser.id)
+      expect(fetchUser.birthDate).that.is.a('string').to.equal(dbUser.birthDate)
+    })
   })
 })

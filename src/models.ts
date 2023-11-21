@@ -6,7 +6,6 @@ interface BaseResponseData<T> {
   errors: GraphQLError[]
 }
 
-// Login REQUEST and RESPONSE data
 interface LoginResponseData {
   login: {
     token: string
@@ -20,7 +19,6 @@ export interface ILoginRequest {
 }
 export interface ILoginResponse extends BaseResponseData<LoginResponseData> {}
 
-// Create User REQUEST and RESPONSE data
 interface CreateUserData {
   createUser: {
     user: User
@@ -34,7 +32,6 @@ export interface ICreateUserRequest {
 }
 export interface ICreateUserResponse extends BaseResponseData<CreateUserData> {}
 
-// Get a Specific User REQUEST and RESPONSE data
 interface GetUserData {
   user: User
 }
@@ -43,11 +40,9 @@ export interface IGetUserRequest {
 }
 export interface IGetUserResposne extends BaseResponseData<GetUserData> {}
 
-// Fetch Many Users Response data
 interface FetchUsersData {
   users: User[]
 }
 export interface IFetchUsersResponse extends BaseResponseData<FetchUsersData> {}
 
-// for queries without request data
 export interface EmptyRequestData {}
