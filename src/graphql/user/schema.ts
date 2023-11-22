@@ -1,6 +1,10 @@
 import { gql } from 'apollo-server'
 
 export = gql`
+  input UsersInput {
+    quantity: Int!
+  }
+
   input UserInput {
     name: String!
     email: String!
@@ -37,6 +41,6 @@ export = gql`
 
   type Query {
     user(data: GetUserInput): User!
-    users: [User!]!
+    users(data: UsersInput = { quantity: 10 }): [User!]!
   }
 `

@@ -6,10 +6,19 @@ interface FetchUsersServiceResponse {
   users: User[]
 }
 
+interface FetchUsersServiceRequest {
+  quantity: number
+}
+
 export class FetchUsersService {
-  async execute(): Promise<FetchUsersServiceResponse> {
+  async execute({ quantity }: FetchUsersServiceRequest): Promise<FetchUsersServiceResponse> {
     const repo = AppDataSource.getRepository(User)
-    const users = await repo.find()
+    const users = await repo.find({
+      order: {
+        name: 'ASC',
+      },
+      take: quantity,
+    })
 
     if (!users) {
       throw new ResourceNotFoundError()
