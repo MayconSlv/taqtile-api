@@ -4,6 +4,7 @@ import { CreateUserService } from '../../services/create-user-service'
 import { AuthenticateService } from '../../services/authenticate-service'
 import { verifyToken } from '../../middleware/verify-token'
 import { GetUserService } from '../../services/get-user-by-id-service'
+import { FetchUsersService } from '../../services/fetch-users-service'
 
 interface UserInputData {
   data: User
@@ -84,6 +85,12 @@ export = {
       const { user } = await getUser.execute({ userId })
 
       return user
+    },
+    users: async () => {
+      const fetchUsers = new FetchUsersService()
+      const { users } = await fetchUsers.execute()
+
+      return users
     },
   },
 }
