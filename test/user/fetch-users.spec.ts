@@ -9,14 +9,14 @@ import { seedUsers } from '../../src/seeds/users.seed'
 import { EmptyRequestData, IFetchUsersResponse } from '../../src/models'
 import { expect } from 'chai'
 
-let server: ApolloServer
-const query = `query{
-  users {
-    name email birthDate id
-  }
-}`
-
 describe('Fetch Many Users', () => {
+  let server: ApolloServer
+  const query = `query{
+    users {
+      name email birthDate id
+    }
+  }`
+
   before(async () => {
     server = createApolloServer()
     await startServer(server)
