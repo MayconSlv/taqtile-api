@@ -41,11 +41,17 @@ export interface IGetUserRequest {
 export interface IGetUserResposne extends BaseResponseData<GetUserData> {}
 
 interface FetchUsersData {
-  users: User[]
+  users: {
+    users: User[]
+    hasMoreAfter: boolean
+    hasMoreBefore: boolean
+    totalUsers: number
+  }
 }
 export interface IFetchUsersResponse extends BaseResponseData<FetchUsersData> {}
 export interface IFetchUsersRequest {
   quantity: number
+  page: number
 }
 
 export interface EmptyRequestData {}

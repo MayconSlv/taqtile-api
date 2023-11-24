@@ -13,9 +13,24 @@ import { createAndAuthenticateUser } from '../../src/utils/create-and-authentica
 describe('Fetch Many Users', () => {
   let token: string
   let server: ApolloServer
-  const query = `query{
+  const query = `query {
     users {
-      name email birthDate id
+      users {
+        name email id birthDate
+      }
+      hasMoreAfter
+      hasMoreBefore
+      totalUsers
+    }
+  }`
+  const queryWithParams = `query ($data: UsersInput) {
+    users (data: $data) {
+      users {
+        name email id birthDate
+      }
+      hasMoreAfter
+      hasMoreBefore
+      totalUsers
     }
   }`
 
@@ -49,7 +64,7 @@ describe('Fetch Many Users', () => {
     const { data } = fetchResponse.data
 
     const usersInDatabase = await AppDataSource.getRepository(User).find()
-    const usersFetchResponse = data.users
+    const usersFetchResponse = data.users.users
 
     usersFetchResponse.forEach((fetchUser) => {
       const dbUser = usersInDatabase.find((user) => user.id === fetchUser.id)!
@@ -62,21 +77,18 @@ describe('Fetch Many Users', () => {
 
   it('should be able to fetch users with params', async () => {
     const fetchResponse = await makeApiCall<IFetchUsersRequest, IFetchUsersResponse>({
-      query: `query ($data: UsersInput) {
-        users (data: $data) {
-          name email id birthDate
-        }
-      }`,
+      query: queryWithParams,
       token,
       dataInput: {
         quantity: 50,
+        page: 2,
       },
     })
 
     const { data } = fetchResponse.data
 
     const usersInDatabase = await AppDataSource.getRepository(User).find()
-    const usersFetchResponse = data.users
+    const usersFetchResponse = data.users.users
 
     usersFetchResponse.forEach((fetchUser) => {
       const dbUser = usersInDatabase.find((user) => user.id === fetchUser.id)!
@@ -87,6 +99,57 @@ describe('Fetch Many Users', () => {
     })
   })
 
+  it('should not have a previous page', async () => {
+    const fetchResponse = await makeApiCall<IFetchUsersRequest, IFetchUsersResponse>({
+      query: queryWithParams,
+      token,
+      dataInput: {
+        quantity: 40,
+        page: 1,
+      },
+    })
+
+    const { data } = fetchResponse.data
+
+    expect(data.users).to.have.property('hasMoreBefore').that.is.equal(false)
+    expect(data.users).to.have.property('hasMoreAfter').that.is.equal(true)
+    expect(data.users).to.have.property('totalUsers').that.is.equal(40)
+  })
+
+  it('should have a previous page', async () => {
+    const fetchResponse = await makeApiCall<IFetchUsersRequest, IFetchUsersResponse>({
+      query: queryWithParams,
+      token,
+      dataInput: {
+        quantity: 40,
+        page: 3,
+      },
+    })
+
+    const { data } = fetchResponse.data
+
+    expect(data.users).to.have.property('hasMoreBefore').that.is.equal(true)
+    expect(data.users).to.have.property('hasMoreAfter').that.is.equal(true)
+    expect(data.users).to.have.property('totalUsers').that.is.equal(40)
+  })
+
+  it('should not have a next page', async () => {
+    const fetchResponse = await makeApiCall<IFetchUsersRequest, IFetchUsersResponse>({
+      query: queryWithParams,
+      token,
+      dataInput: {
+        quantity: 40,
+        page: 4,
+      },
+    })
+
+    const { data } = fetchResponse.data
+
+    expect(data.users).to.have.property('hasMoreBefore').that.is.equal(true)
+    expect(data.users).to.have.property('hasMoreAfter').that.is.equal(false)
+    expect(data.users).to.have.property('totalUsers').that.is.equal(40)
+  })
+
   it('sould return users in alphabetical order', async () => {
     const fetchResponse = await makeApiCall<EmptyRequestData, IFetchUsersResponse>({
       query,
@@ -95,7 +158,7 @@ describe('Fetch Many Users', () => {
 
     const { data } = fetchResponse.data
 
-    const usersFetchResponse = data.users
+    const usersFetchResponse = data.users.users
     const usersInDatabase = await AppDataSource.getRepository(User).find({
       order: {
         name: 'ASC',
