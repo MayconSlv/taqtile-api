@@ -27,7 +27,7 @@ interface GetUserData {
 interface FetchUsersData {
   data: {
     quantity: number
-    page: number
+    items: number
   }
 }
 
@@ -98,13 +98,13 @@ export = {
 
       const fetchUsersDataSchema = z.object({
         quantity: z.number(),
-        page: z.number(),
+        items: z.number(),
       })
 
-      const { quantity, page } = fetchUsersDataSchema.parse(data)
+      const { quantity, items } = fetchUsersDataSchema.parse(data)
 
       const fetchUsers = new FetchUsersService()
-      const { users, hasMoreAfter, hasMoreBefore, totalUsers } = await fetchUsers.execute({ quantity, page })
+      const { users, hasMoreAfter, hasMoreBefore, totalUsers } = await fetchUsers.execute({ quantity, items })
 
       return {
         users,

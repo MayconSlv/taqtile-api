@@ -51,7 +51,7 @@ interface FetchUsersData {
 export interface IFetchUsersResponse extends BaseResponseData<FetchUsersData> {}
 export interface IFetchUsersRequest {
   quantity: number
-  page: number
+  items: number
 }
 
 export interface EmptyRequestData {}

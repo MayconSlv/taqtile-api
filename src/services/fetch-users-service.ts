@@ -1,6 +1,5 @@
 import { AppDataSource } from '../data-source'
 import { User } from '../entities/User'
-import { ResourceNotFoundError } from './errros/resource-not-found-error'
 
 interface FetchUsersServiceResponse {
   users: User[]
@@ -11,28 +10,24 @@ interface FetchUsersServiceResponse {
 
 interface FetchUsersServiceRequest {
   quantity: number
-  page: number
+  items: number
 }
 
 export class FetchUsersService {
-  async execute({ quantity, page }: FetchUsersServiceRequest): Promise<FetchUsersServiceResponse> {
+  async execute({ quantity, items }: FetchUsersServiceRequest): Promise<FetchUsersServiceResponse> {
     const repo = AppDataSource.getRepository(User)
-    const databaseUsers = await repo.find({
+    const users = await repo.find({
       order: {
         name: 'ASC',
       },
       take: quantity,
+      skip: (items - 1) * quantity,
     })
 
-    const users = databaseUsers.slice((page - 1) * 10, page * 10)
-    const totalUsers = databaseUsers.length
+    const totalUsers = await repo.count()
 
-    const hasMoreAfter = page * 10 < totalUsers
-    const hasMoreBefore = page > 1
-
-    if (users.length === 0) {
-      throw new ResourceNotFoundError()
-    }
+    const hasMoreAfter = items * quantity < totalUsers
+    const hasMoreBefore = items > 1
 
     return {
       users,
