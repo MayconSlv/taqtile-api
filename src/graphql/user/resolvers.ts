@@ -24,6 +24,12 @@ interface GetUserData {
   }
 }
 
+interface FetchUsersData {
+  data: {
+    quantity: number
+  }
+}
+
 export = {
   Mutation: {
     createUser: async (_, { data }: UserInputData, { token }) => {
@@ -86,9 +92,17 @@ export = {
 
       return user
     },
-    users: async () => {
+    users: async (_, { data }: FetchUsersData, { token }) => {
+      verifyToken(token)
+
+      const fetchUsersDataSchema = z.object({
+        quantity: z.number(),
+      })
+
+      const { quantity } = fetchUsersDataSchema.parse(data)
+
       const fetchUsers = new FetchUsersService()
-      const { users } = await fetchUsers.execute()
+      const { users } = await fetchUsers.execute({ quantity })
 
       return users
     },

@@ -44,5 +44,8 @@ interface FetchUsersData {
   users: User[]
 }
 export interface IFetchUsersResponse extends BaseResponseData<FetchUsersData> {}
+export interface IFetchUsersRequest {
+  quantity: number
+}
 
 export interface EmptyRequestData {}
