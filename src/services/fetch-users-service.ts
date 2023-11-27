@@ -10,24 +10,24 @@ interface FetchUsersServiceResponse {
 
 interface FetchUsersServiceRequest {
   quantity: number
-  items: number
+  skiped_users: number
 }
 
 export class FetchUsersService {
-  async execute({ quantity, items }: FetchUsersServiceRequest): Promise<FetchUsersServiceResponse> {
+  async execute({ quantity, skiped_users }: FetchUsersServiceRequest): Promise<FetchUsersServiceResponse> {
     const repo = AppDataSource.getRepository(User)
     const users = await repo.find({
       order: {
         name: 'ASC',
       },
       take: quantity,
-      skip: (items - 1) * quantity,
+      skip: skiped_users,
     })
 
     const totalUsers = await repo.count()
 
-    const hasMoreAfter = items * quantity < totalUsers
-    const hasMoreBefore = items > 1
+    const hasMoreAfter = skiped_users + quantity < totalUsers
+    const hasMoreBefore = skiped_users > 1
 
     return {
       users,

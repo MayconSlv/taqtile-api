@@ -75,7 +75,7 @@ describe('Fetch Many Users', () => {
       token,
       dataInput: {
         quantity: 20,
-        items: 2,
+        skiped_users: 10,
       },
     })
 
@@ -99,7 +99,7 @@ describe('Fetch Many Users', () => {
       token,
       dataInput: {
         quantity: 20,
-        items: 1,
+        skiped_users: 1,
       },
     })
 
@@ -117,7 +117,7 @@ describe('Fetch Many Users', () => {
       token,
       dataInput: {
         quantity: 10,
-        items: 3,
+        skiped_users: 30,
       },
     })
 
@@ -134,8 +134,8 @@ describe('Fetch Many Users', () => {
       query,
       token,
       dataInput: {
-        quantity: 15,
-        items: 4,
+        quantity: 20,
+        skiped_users: 40,
       },
     })
 
@@ -143,7 +143,7 @@ describe('Fetch Many Users', () => {
 
     expect(data.users).to.have.property('hasMoreBefore').that.is.equal(true)
     expect(data.users).to.have.property('hasMoreAfter').that.is.equal(false)
-    expect(data.users).to.have.property('users').to.have.length(6)
+    expect(data.users).to.have.property('users').to.have.length(11)
     expect(data.users).to.have.property('totalUsers').that.is.equal(51)
   })
 
