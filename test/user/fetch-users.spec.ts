@@ -75,7 +75,7 @@ describe('Fetch Many Users', () => {
       token,
       dataInput: {
         quantity: 20,
-        skiped_users: 10,
+        skipedUsers: 10,
       },
     })
 
@@ -99,7 +99,7 @@ describe('Fetch Many Users', () => {
       token,
       dataInput: {
         quantity: 20,
-        skiped_users: 1,
+        skipedUsers: 1,
       },
     })
 
@@ -117,16 +117,26 @@ describe('Fetch Many Users', () => {
       token,
       dataInput: {
         quantity: 10,
-        skiped_users: 30,
+        skipedUsers: 30,
       },
     })
 
     const { data } = fetchResponse.data
+    const usersInDatabase = await AppDataSource.getRepository(User).find()
+    const usersFetchResponse = data.users.users
 
     expect(data.users).to.have.property('hasMoreBefore').that.is.equal(true)
     expect(data.users).to.have.property('hasMoreAfter').that.is.equal(true)
     expect(data.users).to.have.property('users').to.have.length(10)
     expect(data.users).to.have.property('totalUsers').that.is.equal(51)
+
+    usersFetchResponse.forEach((fetchUser) => {
+      const dbUser = usersInDatabase.find((user) => user.id === fetchUser.id)!
+      expect(fetchUser.name).that.is.a('string').to.equal(dbUser.name)
+      expect(fetchUser.email).that.is.a('string').to.equal(dbUser.email)
+      expect(fetchUser.id).that.is.a('string').to.equal(dbUser.id)
+      expect(fetchUser.birthDate).that.is.a('string').to.equal(dbUser.birthDate)
+    })
   })
 
   it('should not have more users after', async () => {
@@ -135,16 +145,26 @@ describe('Fetch Many Users', () => {
       token,
       dataInput: {
         quantity: 20,
-        skiped_users: 40,
+        skipedUsers: 40,
       },
     })
 
     const { data } = fetchResponse.data
+    const usersInDatabase = await AppDataSource.getRepository(User).find()
+    const usersFetchResponse = data.users.users
 
     expect(data.users).to.have.property('hasMoreBefore').that.is.equal(true)
     expect(data.users).to.have.property('hasMoreAfter').that.is.equal(false)
     expect(data.users).to.have.property('users').to.have.length(11)
     expect(data.users).to.have.property('totalUsers').that.is.equal(51)
+
+    usersFetchResponse.forEach((fetchUser) => {
+      const dbUser = usersInDatabase.find((user) => user.id === fetchUser.id)!
+      expect(fetchUser.name).that.is.a('string').to.equal(dbUser.name)
+      expect(fetchUser.email).that.is.a('string').to.equal(dbUser.email)
+      expect(fetchUser.id).that.is.a('string').to.equal(dbUser.id)
+      expect(fetchUser.birthDate).that.is.a('string').to.equal(dbUser.birthDate)
+    })
   })
 
   it('should return users in alphabetical order', async () => {
