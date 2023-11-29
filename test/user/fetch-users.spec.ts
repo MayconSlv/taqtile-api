@@ -56,40 +56,53 @@ describe('Fetch Many Users', () => {
 
     const { data } = fetchResponse.data
 
-    const usersInDatabase = await AppDataSource.getRepository(User).find()
+    const usersInDatabase = await AppDataSource.getRepository(User).find({
+      order: {
+        name: 'ASC',
+      },
+    })
     const usersFetchResponse = data.users.users
 
-    usersFetchResponse.forEach((fetchUser) => {
+    usersFetchResponse.forEach((fetchUser, index) => {
       const dbUser = usersInDatabase.find((user) => user.id === fetchUser.id)!
+
       expect(fetchUser.name).that.is.a('string').to.equal(dbUser.name)
       expect(fetchUser.email).that.is.a('string').to.equal(dbUser.email)
       expect(fetchUser.id).that.is.a('string').to.equal(dbUser.id)
       expect(fetchUser.birthDate).that.is.a('string').to.equal(dbUser.birthDate)
+      expect(usersInDatabase.indexOf(dbUser)).to.equal(index)
     })
     expect(usersFetchResponse).to.have.length(10)
   })
 
   it('should be able to fetch users with params', async () => {
+    const skipedUsers = 10
     const fetchResponse = await makeApiCall<IFetchUsersRequest, IFetchUsersResponse>({
       query,
       token,
       dataInput: {
         quantity: 20,
-        skipedUsers: 10,
+        skipedUsers,
       },
     })
 
     const { data } = fetchResponse.data
 
-    const usersInDatabase = await AppDataSource.getRepository(User).find()
+    const usersInDatabase = await AppDataSource.getRepository(User).find({
+      order: {
+        name: 'ASC',
+      },
+    })
     const usersFetchResponse = data.users.users
 
-    usersFetchResponse.forEach((fetchUser) => {
+    usersFetchResponse.forEach((fetchUser, index) => {
       const dbUser = usersInDatabase.find((user) => user.id === fetchUser.id)!
+
       expect(fetchUser.name).that.is.a('string').to.equal(dbUser.name)
       expect(fetchUser.email).that.is.a('string').to.equal(dbUser.email)
       expect(fetchUser.id).that.is.a('string').to.equal(dbUser.id)
       expect(fetchUser.birthDate).that.is.a('string').to.equal(dbUser.birthDate)
+      expect(usersInDatabase.indexOf(dbUser)).to.equal(index + skipedUsers)
     })
   })
 
@@ -112,17 +125,20 @@ describe('Fetch Many Users', () => {
   })
 
   it('should have more users before', async () => {
+    const skipedUsers = 30
     const fetchResponse = await makeApiCall<IFetchUsersRequest, IFetchUsersResponse>({
       query,
       token,
       dataInput: {
         quantity: 10,
-        skipedUsers: 30,
+        skipedUsers,
       },
     })
 
     const { data } = fetchResponse.data
-    const usersInDatabase = await AppDataSource.getRepository(User).find()
+    const usersInDatabase = await AppDataSource.getRepository(User).find({
+      order: { name: 'ASC' },
+    })
     const usersFetchResponse = data.users.users
 
     expect(data.users).to.have.property('hasMoreBefore').that.is.equal(true)
@@ -130,27 +146,33 @@ describe('Fetch Many Users', () => {
     expect(data.users).to.have.property('users').to.have.length(10)
     expect(data.users).to.have.property('totalUsers').that.is.equal(51)
 
-    usersFetchResponse.forEach((fetchUser) => {
+    usersFetchResponse.forEach((fetchUser, index) => {
       const dbUser = usersInDatabase.find((user) => user.id === fetchUser.id)!
       expect(fetchUser.name).that.is.a('string').to.equal(dbUser.name)
       expect(fetchUser.email).that.is.a('string').to.equal(dbUser.email)
       expect(fetchUser.id).that.is.a('string').to.equal(dbUser.id)
       expect(fetchUser.birthDate).that.is.a('string').to.equal(dbUser.birthDate)
+      expect(usersInDatabase.indexOf(dbUser)).to.equal(index + skipedUsers)
     })
   })
 
   it('should not have more users after', async () => {
+    const skipedUsers = 40
     const fetchResponse = await makeApiCall<IFetchUsersRequest, IFetchUsersResponse>({
       query,
       token,
       dataInput: {
         quantity: 20,
-        skipedUsers: 40,
+        skipedUsers,
       },
     })
 
     const { data } = fetchResponse.data
-    const usersInDatabase = await AppDataSource.getRepository(User).find()
+    const usersInDatabase = await AppDataSource.getRepository(User).find({
+      order: {
+        name: 'ASC',
+      },
+    })
     const usersFetchResponse = data.users.users
 
     expect(data.users).to.have.property('hasMoreBefore').that.is.equal(true)
@@ -158,12 +180,13 @@ describe('Fetch Many Users', () => {
     expect(data.users).to.have.property('users').to.have.length(11)
     expect(data.users).to.have.property('totalUsers').that.is.equal(51)
 
-    usersFetchResponse.forEach((fetchUser) => {
+    usersFetchResponse.forEach((fetchUser, index) => {
       const dbUser = usersInDatabase.find((user) => user.id === fetchUser.id)!
       expect(fetchUser.name).that.is.a('string').to.equal(dbUser.name)
       expect(fetchUser.email).that.is.a('string').to.equal(dbUser.email)
       expect(fetchUser.id).that.is.a('string').to.equal(dbUser.id)
       expect(fetchUser.birthDate).that.is.a('string').to.equal(dbUser.birthDate)
+      expect(usersInDatabase.indexOf(dbUser)).to.equal(index + skipedUsers)
     })
   })
 
