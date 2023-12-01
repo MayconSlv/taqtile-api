@@ -3,6 +3,14 @@ import { gql } from 'apollo-server'
 export = gql`
   input UsersInput {
     quantity: Int!
+    skipedUsers: Int!
+  }
+
+  type UsersResponse {
+    users: [User!]!
+    totalUsers: Int!
+    hasMoreBefore: Boolean!
+    hasMoreAfter: Boolean!
   }
 
   input UserInput {
@@ -41,6 +49,6 @@ export = gql`
 
   type Query {
     user(data: GetUserInput): User!
-    users(data: UsersInput = { quantity: 10 }): [User!]!
+    users(data: UsersInput = { quantity: 10, skipedUsers: 0 }): UsersResponse!
   }
 `
