@@ -30,11 +30,23 @@ export = gql`
     userId: String!
   }
 
+  type Address {
+    id: ID!
+    cep: String!
+    street: String!
+    streetNumber: String!
+    complement: String!
+    neighborhood: String!
+    city: String!
+    state: String!
+  }
+
   type User {
     id: ID!
     name: String!
     email: String!
     birthDate: String!
+    address: [Address]
   }
 
   type LoginResponse {
