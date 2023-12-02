@@ -39,7 +39,8 @@ describe('Authenticate User', () => {
 
   afterEach(async () => {
     const userRepository = AppDataSource.getRepository(User)
-    await userRepository.clear()
+    const users = await userRepository.find()
+    await userRepository.remove(users)
   })
 
   after(async () => {
