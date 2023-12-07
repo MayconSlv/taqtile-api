@@ -22,7 +22,7 @@ export class FetchUsersService {
       },
       take: quantity,
       skip: skipedUsers,
-      relations: ['address'],
+      relations: ['adresses'],
     })
 
     const totalUsers = await repo.count()

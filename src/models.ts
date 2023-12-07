@@ -55,3 +55,7 @@ export interface IFetchUsersRequest {
 }
 
 export interface EmptyRequestData {}
+
+export interface MyContext {
+  token: string
+}

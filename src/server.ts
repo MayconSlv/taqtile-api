@@ -1,25 +1,31 @@
 import 'reflect-metadata'
+import path from 'node:path'
+
 import { ApolloServer } from 'apollo-server'
 import { AppDataSource } from './data-source'
-import { resolvers, typeDefs } from './graphql/index'
+import { buildSchema } from 'type-graphql'
 
-const server = new ApolloServer({
-  resolvers,
-  typeDefs,
-  context: ({ req }) => {
-    const token = req.headers.authorization
+import { AuthenticateResolver } from './graphql/resolvers/authenticate'
+import { CreateUserResolver } from './graphql/resolvers/crate-user'
+import { FetchUsersResolver } from './graphql/resolvers/fetch-users-resolver'
 
-    return {
-      token,
-    }
-  },
-})
-
-AppDataSource.initialize()
-  .then(() => {
-    console.log('Database OK.')
-    server.listen().then(({ url }) => console.log(`Server is running on ${url}`))
+async function server() {
+  const schema = await buildSchema({
+    resolvers: [AuthenticateResolver, CreateUserResolver, FetchUsersResolver],
+    emitSchemaFile: path.resolve(__dirname, 'schema.gql'),
   })
-  .catch((err) => {
-    console.log('Error:', err)
+
+  const server = new ApolloServer({
+    schema,
+    context: ({ req }) => {
+      const token = req.headers.authorization
+
+      return {
+        token,
+      }
+    },
   })
+  AppDataSource.initialize()
+  await server.listen().then(({ url }) => console.log(`Server is running on ${url}`))
+}
+server()
