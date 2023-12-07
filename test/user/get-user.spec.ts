@@ -8,6 +8,7 @@ import { ApolloServer } from 'apollo-server'
 import { IGetUserRequest, IGetUserResposne } from '../../src/models'
 import { createAndAuthenticateUser } from '../../src/utils/create-and-authenticate-user'
 import { expect } from 'chai'
+import { removeDataFromDatabase } from '../../src/utils/remove-data-from-db'
 
 let token: string
 let userId: string
@@ -51,8 +52,7 @@ describe('Get User By ID', () => {
 
   afterEach(async () => {
     const userRepository = AppDataSource.getRepository(User)
-    const users = await userRepository.find()
-    await userRepository.remove(users)
+    await removeDataFromDatabase<User>(userRepository)
   })
 
   after(async () => {

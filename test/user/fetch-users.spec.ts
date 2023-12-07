@@ -9,6 +9,7 @@ import { seedUsers } from '../../src/seeds/users.seed'
 import { EmptyRequestData, IFetchUsersRequest, IFetchUsersResponse } from '../../src/models'
 import { expect } from 'chai'
 import { createAndAuthenticateUser } from '../../src/utils/create-and-authenticate-user'
+import { removeDataFromDatabase } from '../../src/utils/remove-data-from-db'
 
 describe('Fetch Many Users', () => {
   let token: string
@@ -50,8 +51,7 @@ describe('Fetch Many Users', () => {
 
   afterEach(async () => {
     const userRepository = AppDataSource.getRepository(User)
-    const users = await userRepository.find()
-    await userRepository.remove(users)
+    await removeDataFromDatabase<User>(userRepository)
   })
 
   after(async () => {
