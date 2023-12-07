@@ -9,6 +9,7 @@ import { seedUsers } from '../../src/seeds/users.seed'
 import { EmptyRequestData, IFetchUsersRequest, IFetchUsersResponse } from '../../src/models'
 import { expect } from 'chai'
 import { createAndAuthenticateUser } from '../../src/utils/create-and-authenticate-user'
+import { removeDataFromDatabase } from '../../src/utils/remove-data-from-db'
 
 describe('Fetch Many Users', () => {
   let token: string
@@ -20,6 +21,16 @@ describe('Fetch Many Users', () => {
         email
         id
         birthDate
+        address {
+          id
+          city
+          cep
+          complement
+          state
+          street
+          streetNumber
+          neighborhood
+        }
       }
       hasMoreAfter
       hasMoreBefore
@@ -40,7 +51,7 @@ describe('Fetch Many Users', () => {
 
   afterEach(async () => {
     const userRepository = AppDataSource.getRepository(User)
-    await userRepository.clear()
+    await removeDataFromDatabase<User>(userRepository)
   })
 
   after(async () => {
@@ -60,6 +71,7 @@ describe('Fetch Many Users', () => {
       order: {
         name: 'ASC',
       },
+      relations: ['address'],
     })
     const usersFetchResponse = data.users.users
 
@@ -71,6 +83,18 @@ describe('Fetch Many Users', () => {
       expect(fetchUser.id).that.is.a('string').to.equal(dbUser.id)
       expect(fetchUser.birthDate).that.is.a('string').to.equal(dbUser.birthDate)
       expect(usersInDatabase.indexOf(dbUser)).to.equal(index)
+
+      const fetchUserAddress = fetchUser.address[0]
+      const dbUserAddress = dbUser.address[0]
+
+      expect(fetchUserAddress.id).to.be.a('string').to.equal(dbUserAddress.id)
+      expect(fetchUserAddress.cep).to.be.a('string').to.equal(dbUserAddress.cep)
+      expect(fetchUserAddress.city).to.be.a('string').to.equal(dbUserAddress.city)
+      expect(fetchUserAddress.complement).to.be.a('string').to.equal(dbUserAddress.complement)
+      expect(fetchUserAddress.neighborhood).to.be.a('string').to.equal(dbUserAddress.neighborhood)
+      expect(fetchUserAddress.state).to.be.a('string').to.equal(dbUserAddress.state)
+      expect(fetchUserAddress.street).to.be.a('string').to.equal(dbUserAddress.street)
+      expect(fetchUserAddress.streetNumber).to.be.a('string').to.equal(dbUserAddress.streetNumber)
     })
     expect(usersFetchResponse).to.have.length(10)
   })
@@ -92,6 +116,7 @@ describe('Fetch Many Users', () => {
       order: {
         name: 'ASC',
       },
+      relations: ['address'],
     })
     const usersFetchResponse = data.users.users
 
@@ -103,6 +128,18 @@ describe('Fetch Many Users', () => {
       expect(fetchUser.id).that.is.a('string').to.equal(dbUser.id)
       expect(fetchUser.birthDate).that.is.a('string').to.equal(dbUser.birthDate)
       expect(usersInDatabase.indexOf(dbUser)).to.equal(index + skipedUsers)
+
+      const fetchUserAddress = fetchUser.address[0]
+      const dbUserAddress = dbUser.address[0]
+
+      expect(fetchUserAddress.id).to.be.a('string').to.equal(dbUserAddress.id)
+      expect(fetchUserAddress.cep).to.be.a('string').to.equal(dbUserAddress.cep)
+      expect(fetchUserAddress.city).to.be.a('string').to.equal(dbUserAddress.city)
+      expect(fetchUserAddress.complement).to.be.a('string').to.equal(dbUserAddress.complement)
+      expect(fetchUserAddress.neighborhood).to.be.a('string').to.equal(dbUserAddress.neighborhood)
+      expect(fetchUserAddress.state).to.be.a('string').to.equal(dbUserAddress.state)
+      expect(fetchUserAddress.street).to.be.a('string').to.equal(dbUserAddress.street)
+      expect(fetchUserAddress.streetNumber).to.be.a('string').to.equal(dbUserAddress.streetNumber)
     })
   })
 
@@ -138,6 +175,7 @@ describe('Fetch Many Users', () => {
     const { data } = fetchResponse.data
     const usersInDatabase = await AppDataSource.getRepository(User).find({
       order: { name: 'ASC' },
+      relations: ['address'],
     })
     const usersFetchResponse = data.users.users
 
@@ -153,6 +191,18 @@ describe('Fetch Many Users', () => {
       expect(fetchUser.id).that.is.a('string').to.equal(dbUser.id)
       expect(fetchUser.birthDate).that.is.a('string').to.equal(dbUser.birthDate)
       expect(usersInDatabase.indexOf(dbUser)).to.equal(index + skipedUsers)
+
+      const fetchUserAddress = fetchUser.address[0]
+      const dbUserAddress = dbUser.address[0]
+
+      expect(fetchUserAddress.id).to.be.a('string').to.equal(dbUserAddress.id)
+      expect(fetchUserAddress.cep).to.be.a('string').to.equal(dbUserAddress.cep)
+      expect(fetchUserAddress.city).to.be.a('string').to.equal(dbUserAddress.city)
+      expect(fetchUserAddress.complement).to.be.a('string').to.equal(dbUserAddress.complement)
+      expect(fetchUserAddress.neighborhood).to.be.a('string').to.equal(dbUserAddress.neighborhood)
+      expect(fetchUserAddress.state).to.be.a('string').to.equal(dbUserAddress.state)
+      expect(fetchUserAddress.street).to.be.a('string').to.equal(dbUserAddress.street)
+      expect(fetchUserAddress.streetNumber).to.be.a('string').to.equal(dbUserAddress.streetNumber)
     })
   })
 
@@ -172,6 +222,7 @@ describe('Fetch Many Users', () => {
       order: {
         name: 'ASC',
       },
+      relations: ['address'],
     })
     const usersFetchResponse = data.users.users
 
@@ -187,6 +238,18 @@ describe('Fetch Many Users', () => {
       expect(fetchUser.id).that.is.a('string').to.equal(dbUser.id)
       expect(fetchUser.birthDate).that.is.a('string').to.equal(dbUser.birthDate)
       expect(usersInDatabase.indexOf(dbUser)).to.equal(index + skipedUsers)
+
+      const fetchUserAddress = fetchUser.address[0]
+      const dbUserAddress = dbUser.address[0]
+
+      expect(fetchUserAddress.id).to.be.a('string').to.equal(dbUserAddress.id)
+      expect(fetchUserAddress.cep).to.be.a('string').to.equal(dbUserAddress.cep)
+      expect(fetchUserAddress.city).to.be.a('string').to.equal(dbUserAddress.city)
+      expect(fetchUserAddress.complement).to.be.a('string').to.equal(dbUserAddress.complement)
+      expect(fetchUserAddress.neighborhood).to.be.a('string').to.equal(dbUserAddress.neighborhood)
+      expect(fetchUserAddress.state).to.be.a('string').to.equal(dbUserAddress.state)
+      expect(fetchUserAddress.street).to.be.a('string').to.equal(dbUserAddress.street)
+      expect(fetchUserAddress.streetNumber).to.be.a('string').to.equal(dbUserAddress.streetNumber)
     })
   })
 
@@ -203,6 +266,7 @@ describe('Fetch Many Users', () => {
       order: {
         name: 'ASC',
       },
+      relations: ['address'],
     })
 
     const fetchUsersNames = usersFetchResponse.map((user) => user.name)

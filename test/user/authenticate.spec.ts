@@ -8,6 +8,7 @@ import { hash } from 'bcryptjs'
 import { startServer } from '../../src/utils/start-server'
 import { createApolloServer } from '../../src/lib/apollo'
 import { ApolloServer } from 'apollo-server'
+import { removeDataFromDatabase } from '../../src/utils/remove-data-from-db'
 
 let server: ApolloServer
 const query = `mutation ($data: LoginInput) {
@@ -39,7 +40,7 @@ describe('Authenticate User', () => {
 
   afterEach(async () => {
     const userRepository = AppDataSource.getRepository(User)
-    await userRepository.clear()
+    await removeDataFromDatabase<User>(userRepository)
   })
 
   after(async () => {

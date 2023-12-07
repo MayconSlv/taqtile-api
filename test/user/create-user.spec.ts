@@ -9,6 +9,7 @@ import { ICreateUserRequest, ICreateUserResponse } from '../../src/models'
 import { createAndAuthenticateUser } from '../../src/utils/create-and-authenticate-user'
 import { createApolloServer } from '../../src/lib/apollo'
 import { ApolloServer } from 'apollo-server'
+import { removeDataFromDatabase } from '../../src/utils/remove-data-from-db'
 
 let token: string
 let server: ApolloServer
@@ -31,7 +32,7 @@ describe('Create User', () => {
 
   afterEach(async () => {
     const userRepository = AppDataSource.getRepository(User)
-    await userRepository.clear()
+    await removeDataFromDatabase<User>(userRepository)
   })
 
   after(async () => {
