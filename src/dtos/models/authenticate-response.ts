@@ -1,10 +1,10 @@
 import { Field, ObjectType } from 'type-graphql'
-import { MUser } from './user-model'
+import { User } from './user-model'
 
 @ObjectType()
 export class AuthenticateResponse {
-  @Field(() => MUser)
-  user: MUser
+  @Field(() => User)
+  user: User
 
   @Field()
   token: string

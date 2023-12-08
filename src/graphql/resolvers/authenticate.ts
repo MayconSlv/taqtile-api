@@ -8,11 +8,6 @@ export class AuthenticateResolver {
   @Mutation(() => AuthenticateResponse)
   async login(@Arg('data') { email, password, rememberMe }: AuthenticateInput) {
     const authenticate = new AuthenticateService()
-    const { token, user } = await authenticate.execute({ email, password, rememberMe })
-
-    return {
-      token,
-      user,
-    }
+    return authenticate.execute({ email, password, rememberMe })
   }
 }

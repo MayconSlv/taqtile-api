@@ -1,7 +1,7 @@
 import { Field, ObjectType } from 'type-graphql'
 
 @ObjectType()
-export class AddressM {
+export class Address {
   @Field()
   cep: string
 

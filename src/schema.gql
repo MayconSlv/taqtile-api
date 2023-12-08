@@ -3,7 +3,7 @@
 # !!!   DO NOT MODIFY THIS FILE BY YOURSELF   !!!
 # -----------------------------------------------
 
-type AddressM {
+type Address {
   cep: String!
   city: String!
   complement: String!
@@ -22,7 +22,7 @@ input AuthenticateInput {
 
 type AuthenticateResponse {
   token: String!
-  user: MUser!
+  user: User!
 }
 
 input CreateUserInput {
@@ -41,27 +41,27 @@ type FetchUsersResponse {
   hasMoreAfter: Boolean!
   hasMoreBefore: Boolean!
   totalUsers: Int!
-  users: [MUser!]!
+  users: [User!]!
 }
 
 input GetUserByIdInput {
   userId: ID!
 }
 
-type MUser {
-  addresses: [AddressM!]!
-  birthDate: String!
-  email: String!
-  id: String!
-  name: String!
-}
-
 type Mutation {
-  createUser(data: CreateUserInput!): MUser!
+  createUser(data: CreateUserInput!): User!
   login(data: AuthenticateInput!): AuthenticateResponse!
 }
 
 type Query {
-  user(data: GetUserByIdInput!): MUser!
+  user(data: GetUserByIdInput!): User!
   users(data: FetchUsersInput!): FetchUsersResponse!
+}
+
+type User {
+  addresses: [Address!]
+  birthDate: String!
+  email: String!
+  id: ID!
+  name: String!
 }

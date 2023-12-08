@@ -1,9 +1,9 @@
-import { Field, ObjectType } from 'type-graphql'
-import { AddressM } from './address-model'
+import { Field, ID, ObjectType } from 'type-graphql'
+import { Address } from './address-model'
 
 @ObjectType()
-export class MUser {
-  @Field()
+export class User {
+  @Field(() => ID)
   id: string
 
   @Field()
@@ -15,6 +15,6 @@ export class MUser {
   @Field()
   name: string
 
-  @Field(() => [AddressM])
-  addresses: AddressM[]
+  @Field(() => [Address])
+  addresses: Address[]
 }

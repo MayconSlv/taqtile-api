@@ -1,5 +1,5 @@
 import { Arg, Ctx, Query, Resolver } from 'type-graphql'
-import { MUser } from '../../dtos/models/user-model'
+import { User } from '../../dtos/models/user-model'
 import { GetUserByIdInput } from '../../dtos/inputs/get-user-by-id-input'
 import { GetUserService } from '../../services/get-user-by-id-service'
 import { FetchUsersInput } from '../../dtos/inputs/fetch-users-input'
@@ -10,14 +10,12 @@ import { verifyToken } from '../../middleware/verify-token'
 
 @Resolver()
 export class FetchUsersResolver {
-  @Query(() => MUser)
+  @Query(() => User)
   async user(@Arg('data') { userId }: GetUserByIdInput, @Ctx() { token }: MyContext) {
     verifyToken(token)
 
     const getUser = new GetUserService()
-    const { user } = await getUser.execute({ userId })
-
-    return user
+    return getUser.execute({ userId })
   }
 
   @Query(() => FetchUsersResponse)
@@ -25,16 +23,6 @@ export class FetchUsersResolver {
     verifyToken(token)
 
     const fetchUsers = new FetchUsersService()
-    const { users, totalUsers, hasMoreAfter, hasMoreBefore } = await fetchUsers.execute({
-      quantity,
-      skipedUsers,
-    })
-
-    return {
-      users,
-      totalUsers,
-      hasMoreAfter,
-      hasMoreBefore,
-    }
+    return fetchUsers.execute({ quantity, skipedUsers })
   }
 }

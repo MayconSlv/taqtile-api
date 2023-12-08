@@ -1,10 +1,10 @@
 import { Field, Int, ObjectType } from 'type-graphql'
-import { MUser } from './user-model'
+import { User } from './user-model'
 
 @ObjectType()
 export class FetchUsersResponse {
-  @Field(() => [MUser])
-  users: MUser[]
+  @Field(() => [User])
+  users: User[]
 
   @Field(() => Int)
   totalUsers: number
