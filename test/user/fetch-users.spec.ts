@@ -14,14 +14,14 @@ import { removeDataFromDatabase } from '../../src/utils/remove-data-from-db'
 describe('Fetch Many Users', () => {
   let token: string
   let server: ApolloServer
-  const query = `query ($data: UsersInput){
+  const query = `query ($data: FetchUsersInput){
     users (data: $data) {
       users {
         name
         email
         id
         birthDate
-        address {
+        addresses {
           id
           city
           cep
@@ -39,7 +39,7 @@ describe('Fetch Many Users', () => {
   }`
 
   before(async () => {
-    server = createApolloServer()
+    server = await createApolloServer()
     await startServer(server)
   })
 
@@ -71,7 +71,7 @@ describe('Fetch Many Users', () => {
       order: {
         name: 'ASC',
       },
-      relations: ['address'],
+      relations: ['addresses'],
     })
     const usersFetchResponse = data.users.users
 
@@ -84,8 +84,8 @@ describe('Fetch Many Users', () => {
       expect(fetchUser.birthDate).that.is.a('string').to.equal(dbUser.birthDate)
       expect(usersInDatabase.indexOf(dbUser)).to.equal(index)
 
-      const fetchUserAddress = fetchUser.address[0]
-      const dbUserAddress = dbUser.address[0]
+      const fetchUserAddress = fetchUser.addresses[0]
+      const dbUserAddress = dbUser.addresses[0]
 
       expect(fetchUserAddress.id).to.be.a('string').to.equal(dbUserAddress.id)
       expect(fetchUserAddress.cep).to.be.a('string').to.equal(dbUserAddress.cep)
@@ -116,7 +116,7 @@ describe('Fetch Many Users', () => {
       order: {
         name: 'ASC',
       },
-      relations: ['address'],
+      relations: ['addresses'],
     })
     const usersFetchResponse = data.users.users
 
@@ -129,8 +129,8 @@ describe('Fetch Many Users', () => {
       expect(fetchUser.birthDate).that.is.a('string').to.equal(dbUser.birthDate)
       expect(usersInDatabase.indexOf(dbUser)).to.equal(index + skipedUsers)
 
-      const fetchUserAddress = fetchUser.address[0]
-      const dbUserAddress = dbUser.address[0]
+      const fetchUserAddress = fetchUser.addresses[0]
+      const dbUserAddress = dbUser.addresses[0]
 
       expect(fetchUserAddress.id).to.be.a('string').to.equal(dbUserAddress.id)
       expect(fetchUserAddress.cep).to.be.a('string').to.equal(dbUserAddress.cep)
@@ -175,7 +175,7 @@ describe('Fetch Many Users', () => {
     const { data } = fetchResponse.data
     const usersInDatabase = await AppDataSource.getRepository(User).find({
       order: { name: 'ASC' },
-      relations: ['address'],
+      relations: ['addresses'],
     })
     const usersFetchResponse = data.users.users
 
@@ -192,8 +192,8 @@ describe('Fetch Many Users', () => {
       expect(fetchUser.birthDate).that.is.a('string').to.equal(dbUser.birthDate)
       expect(usersInDatabase.indexOf(dbUser)).to.equal(index + skipedUsers)
 
-      const fetchUserAddress = fetchUser.address[0]
-      const dbUserAddress = dbUser.address[0]
+      const fetchUserAddress = fetchUser.addresses[0]
+      const dbUserAddress = dbUser.addresses[0]
 
       expect(fetchUserAddress.id).to.be.a('string').to.equal(dbUserAddress.id)
       expect(fetchUserAddress.cep).to.be.a('string').to.equal(dbUserAddress.cep)
@@ -222,7 +222,7 @@ describe('Fetch Many Users', () => {
       order: {
         name: 'ASC',
       },
-      relations: ['address'],
+      relations: ['addresses'],
     })
     const usersFetchResponse = data.users.users
 
@@ -239,8 +239,8 @@ describe('Fetch Many Users', () => {
       expect(fetchUser.birthDate).that.is.a('string').to.equal(dbUser.birthDate)
       expect(usersInDatabase.indexOf(dbUser)).to.equal(index + skipedUsers)
 
-      const fetchUserAddress = fetchUser.address[0]
-      const dbUserAddress = dbUser.address[0]
+      const fetchUserAddress = fetchUser.addresses[0]
+      const dbUserAddress = dbUser.addresses[0]
 
       expect(fetchUserAddress.id).to.be.a('string').to.equal(dbUserAddress.id)
       expect(fetchUserAddress.cep).to.be.a('string').to.equal(dbUserAddress.cep)
@@ -266,7 +266,7 @@ describe('Fetch Many Users', () => {
       order: {
         name: 'ASC',
       },
-      relations: ['address'],
+      relations: ['addresses'],
     })
 
     const fetchUsersNames = usersFetchResponse.map((user) => user.name)

@@ -15,11 +15,16 @@ export class FetchUsersResolver {
     verifyToken(token)
 
     const getUser = new GetUserService()
-    return getUser.execute({ userId })
+    const { user } = await getUser.execute({ userId })
+    return user
   }
 
   @Query(() => FetchUsersResponse)
-  async users(@Arg('data') { quantity, skipedUsers }: FetchUsersInput, @Ctx() { token }: MyContext) {
+  async users(
+    @Arg('data', { nullable: true, defaultValue: { quantity: 10, skipedUsers: 0 } })
+    { quantity, skipedUsers }: FetchUsersInput,
+    @Ctx() { token }: MyContext,
+  ) {
     verifyToken(token)
 
     const fetchUsers = new FetchUsersService()

@@ -19,5 +19,5 @@ export class User {
   birthDate: string
 
   @OneToMany(() => Address, (address) => address.user)
-  adresses: Address[]
+  addresses: Address[]
 }

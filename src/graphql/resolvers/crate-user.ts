@@ -11,6 +11,7 @@ export class CreateUserResolver {
     verifyToken(token)
 
     const createUser = new CreateUserService()
-    return createUser.execute({ name, email, birthDate, password })
+    const { user } = await createUser.execute({ name, email, birthDate, password })
+    return user
   }
 }

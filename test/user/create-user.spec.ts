@@ -13,7 +13,7 @@ import { removeDataFromDatabase } from '../../src/utils/remove-data-from-db'
 
 let token: string
 let server: ApolloServer
-const query = `mutation($data: UserInput!) {
+const query = `mutation($data: CreateUserInput!) {
     createUser(data: $data) {
       id name email birthDate
     }
@@ -21,7 +21,7 @@ const query = `mutation($data: UserInput!) {
 
 describe('Create User', () => {
   before(async () => {
-    server = createApolloServer()
+    server = await createApolloServer()
     return startServer(server)
   })
 
@@ -125,10 +125,11 @@ describe('Create User', () => {
       token,
     })
 
-    const errorMessage = response.data.errors[0].message
-    const error = JSON.parse(errorMessage)
-
-    expect(error[0]).to.have.property('message').that.is.equal('The password must contain 1 letter and 1 digit.')
+    const { errors } = response.data
+    const errorMessage = errors[0].extensions?.exception?.validationErrors![0]?.constraints
+    expect(errorMessage)
+      .to.have.property('PasswordValidator')
+      .that.is.equal('The password must contain 1 letter and 1 digit.')
   })
 
   it('should not be able create a password without numbers', async () => {
@@ -143,10 +144,11 @@ describe('Create User', () => {
       token,
     })
 
-    const errorMessage = response.data.errors[0].message
-    const error = JSON.parse(errorMessage)
-
-    expect(error[0]).to.have.property('message').that.is.equal('The password must contain 1 letter and 1 digit.')
+    const { errors } = response.data
+    const errorMessage = errors[0].extensions?.exception?.validationErrors![0]?.constraints
+    expect(errorMessage)
+      .to.have.property('PasswordValidator')
+      .that.is.equal('The password must contain 1 letter and 1 digit.')
   })
 
   it('should not be able to create a password with less than 6 characters', async () => {
@@ -161,10 +163,9 @@ describe('Create User', () => {
       token,
     })
 
-    const errorMessage = response.data.errors[0].message
-    const error = JSON.parse(errorMessage)
-
-    expect(error[0]).to.have.property('message').that.is.equal('The password must contain 6 characters.')
+    const { errors } = response.data
+    const errorMessage = errors[0].extensions?.exception?.validationErrors![0]?.constraints
+    expect(errorMessage).to.have.property('minLength').that.is.equal('The password must contain 6 characters.')
   })
 
   it('should not be able to create a user with invalid email', async () => {
@@ -179,9 +180,8 @@ describe('Create User', () => {
       token,
     })
 
-    const errorMessage = response.data.errors[0].message
-    const error = JSON.parse(errorMessage)
-
-    expect(error[0]).to.have.property('message').that.is.equal('Invalid email')
+    const { errors } = response.data
+    const errorMessage = errors[0].extensions?.exception?.validationErrors![0]?.constraints
+    expect(errorMessage).to.have.property('isEmail').that.is.equal('email must be an email')
   })
 })

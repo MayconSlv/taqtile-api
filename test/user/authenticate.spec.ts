@@ -11,7 +11,7 @@ import { ApolloServer } from 'apollo-server'
 import { removeDataFromDatabase } from '../../src/utils/remove-data-from-db'
 
 let server: ApolloServer
-const query = `mutation ($data: LoginInput) {
+const query = `mutation ($data: AuthenticateInput!) {
   login(data: $data) {
     token,
     user {
@@ -22,7 +22,7 @@ const query = `mutation ($data: LoginInput) {
 
 describe('Authenticate User', () => {
   before(async () => {
-    server = createApolloServer()
+    server = await createApolloServer()
     await startServer(server)
   })
 

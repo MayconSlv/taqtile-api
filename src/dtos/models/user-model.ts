@@ -15,6 +15,6 @@ export class User {
   @Field()
   name: string
 
-  @Field(() => [Address])
+  @Field(() => [Address], { nullable: true })
   addresses: Address[]
 }
