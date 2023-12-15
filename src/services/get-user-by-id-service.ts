@@ -15,7 +15,7 @@ export class GetUserService {
     const repo = AppDataSource.getRepository(User)
     const user = await repo.findOne({
       where: { id: userId },
-      relations: ['address'],
+      relations: ['addresses'],
     })
 
     if (!user) {

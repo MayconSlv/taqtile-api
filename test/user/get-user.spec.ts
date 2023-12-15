@@ -13,13 +13,13 @@ import { removeDataFromDatabase } from '../../src/utils/remove-data-from-db'
 let token: string
 let userId: string
 let server: ApolloServer
-const query = `query($data: GetUserInput) {
+const query = `query($data: GetUserByIdInput!) {
   user(data: $data) {
     name
     email
     id
     birthDate
-    address {
+    addresses {
       id
       city
       cep
@@ -30,11 +30,12 @@ const query = `query($data: GetUserInput) {
       neighborhood
     }
   }
-}`
+}
+`
 
 describe('Get User By ID', () => {
   before(async () => {
-    server = createApolloServer()
+    server = await createApolloServer()
     await startServer(server)
   })
 
@@ -75,15 +76,15 @@ describe('Get User By ID', () => {
     expect(data.user).to.have.property('email').that.is.a('string').to.equal('johndoe@email.com')
     expect(data.user).to.have.property('birthDate').that.is.a('string').to.equal('12-12-1990')
     expect(data.user).to.have.property('id').that.is.a('string')
-    expect(data.user).to.have.property('address').that.is.an('array')
+    expect(data.user).to.have.property('addresses').that.is.an('array')
     // cehck users address
-    expect(data.user.address[0]).to.have.property('cep').that.is.a('string').to.equal('12345-678')
-    expect(data.user.address[0]).to.have.property('city').that.is.a('string').to.equal('Javascript City')
-    expect(data.user.address[0]).to.have.property('complement').that.is.a('string').to.equal('Typecript')
-    expect(data.user.address[0]).to.have.property('neighborhood').that.is.a('string').to.equal('Java')
-    expect(data.user.address[0]).to.have.property('state').that.is.a('string').to.equal('JS')
-    expect(data.user.address[0]).to.have.property('street').that.is.a('string').to.equal('Javascript Street')
-    expect(data.user.address[0]).to.have.property('streetNumber').that.is.a('string').to.equal('123')
+    expect(data.user.addresses[0]).to.have.property('cep').that.is.a('string').to.equal('12345-678')
+    expect(data.user.addresses[0]).to.have.property('city').that.is.a('string').to.equal('Javascript City')
+    expect(data.user.addresses[0]).to.have.property('complement').that.is.a('string').to.equal('Typecript')
+    expect(data.user.addresses[0]).to.have.property('neighborhood').that.is.a('string').to.equal('Java')
+    expect(data.user.addresses[0]).to.have.property('state').that.is.a('string').to.equal('JS')
+    expect(data.user.addresses[0]).to.have.property('street').that.is.a('string').to.equal('Javascript Street')
+    expect(data.user.addresses[0]).to.have.property('streetNumber').that.is.a('string').to.equal('123')
   })
 
   it('should not be able to fetch a user with invalid token', async () => {

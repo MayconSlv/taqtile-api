@@ -24,7 +24,7 @@ export async function seedUsers() {
       email: randEmail(),
       passwordHash: await hash(randPassword(), 6),
       birthDate: '12-12-90',
-      address: [],
+      addresses: [],
     })),
   )
 
