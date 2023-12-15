@@ -4,14 +4,15 @@ import { CreateUserService } from '../../services/create-user-service'
 import { User } from '../../dtos/models/user-model'
 import { MyContext } from '../../models'
 import { verifyToken } from '../../middleware/verify-token'
+import { Container } from 'typedi'
 
 export class CreateUserResolver {
   @Mutation(() => User)
   async createUser(@Arg('data') { birthDate, name, email, password }: CreateUserInput, @Ctx() { token }: MyContext) {
     verifyToken(token)
 
-    const createUser = new CreateUserService()
-    const { user } = await createUser.execute({ name, email, birthDate, password })
+    const createUserService = Container.get(CreateUserService)
+    const { user } = await createUserService.execute({ name, email, birthDate, password })
     return user
   }
 }

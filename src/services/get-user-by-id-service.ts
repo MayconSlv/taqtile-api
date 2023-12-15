@@ -1,6 +1,7 @@
-import { AppDataSource } from '../data-source'
+import { Inject, Service } from 'typedi'
 import { User } from '../entities/User'
 import { ResourceNotFoundError } from './errros/resource-not-found-error'
+import { UserRepository } from '../repository/typeorm-user-repository'
 
 interface GetUserServiceRequest {
   userId: string
@@ -10,13 +11,11 @@ interface GetUserServiceResponse {
   user: User
 }
 
+@Service()
 export class GetUserService {
+  constructor(@Inject() private userRepository: UserRepository) {}
   async execute({ userId }: GetUserServiceRequest): Promise<GetUserServiceResponse> {
-    const repo = AppDataSource.getRepository(User)
-    const user = await repo.findOne({
-      where: { id: userId },
-      relations: ['addresses'],
-    })
+    const user = await this.userRepository.findById(userId)
 
     if (!user) {
       throw new ResourceNotFoundError()

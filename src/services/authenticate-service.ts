@@ -1,8 +1,9 @@
-import { AppDataSource } from '../data-source'
 import { User } from '../entities/User'
 import { compare } from 'bcryptjs'
 import { InvalidCredentialsError } from './errros/invalid-credentials-error'
 import jwt from 'jsonwebtoken'
+import { Inject, Service } from 'typedi'
+import { UserRepository } from '../repository/typeorm-user-repository'
 
 interface AuthenticateRequest {
   email: string
@@ -15,11 +16,12 @@ interface AuthenticateResponse {
   token: string
 }
 
+@Service()
 export class AuthenticateService {
-  async execute({ email, password, rememberMe }: AuthenticateRequest): Promise<AuthenticateResponse> {
-    const repo = AppDataSource.getRepository(User)
+  constructor(@Inject() private userRepository: UserRepository) {}
 
-    const user = await repo.findOne({ where: { email } })
+  async execute({ email, password, rememberMe }: AuthenticateRequest): Promise<AuthenticateResponse> {
+    const user = await this.userRepository.findByEmail(email)
     if (!user) {
       throw new InvalidCredentialsError()
     }
