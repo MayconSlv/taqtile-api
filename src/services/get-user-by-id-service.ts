@@ -1,4 +1,4 @@
-import { Inject, Service } from 'typedi'
+import { Service } from 'typedi'
 import { User } from '../entities/User'
 import { ResourceNotFoundError } from './errros/resource-not-found-error'
 import { UserRepository } from '../repository/typeorm-user-repository'
@@ -13,7 +13,8 @@ interface GetUserServiceResponse {
 
 @Service()
 export class GetUserService {
-  constructor(@Inject() private userRepository: UserRepository) {}
+  constructor(private userRepository: UserRepository) {}
+
   async execute({ userId }: GetUserServiceRequest): Promise<GetUserServiceResponse> {
     const user = await this.userRepository.findById(userId)
 

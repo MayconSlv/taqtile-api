@@ -7,16 +7,21 @@ import { FetchUsersService } from '../../services/fetch-users-service'
 import { FetchUsersResponse } from '../../dtos/models/fetch-users-response'
 import { MyContext } from '../../models'
 import { verifyToken } from '../../middleware/verify-token'
-import { Container } from 'typedi'
+import { Service } from 'typedi'
 
+@Service()
 @Resolver()
 export class FetchUsersResolver {
+  constructor(
+    private getUserService: GetUserService,
+    private fetchUsersService: FetchUsersService,
+  ) {}
+
   @Query(() => User)
   async user(@Arg('data') { userId }: GetUserByIdInput, @Ctx() { token }: MyContext) {
     verifyToken(token)
 
-    const getUser = Container.get(GetUserService)
-    const { user } = await getUser.execute({ userId })
+    const { user } = await this.getUserService.execute({ userId })
     return user
   }
 
@@ -27,8 +32,6 @@ export class FetchUsersResolver {
     @Ctx() { token }: MyContext,
   ) {
     verifyToken(token)
-
-    const fetchUsers = Container.get(FetchUsersService)
-    return fetchUsers.execute({ quantity, skipedUsers })
+    return this.fetchUsersService.execute({ quantity, skipedUsers })
   }
 }

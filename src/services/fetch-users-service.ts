@@ -1,4 +1,4 @@
-import { Inject, Service } from 'typedi'
+import { Service } from 'typedi'
 import { User } from '../entities/User'
 import { UserRepository } from '../repository/typeorm-user-repository'
 
@@ -16,7 +16,8 @@ interface FetchUsersServiceRequest {
 
 @Service()
 export class FetchUsersService {
-  constructor(@Inject() private userRepository: UserRepository) {}
+  constructor(private userRepository: UserRepository) {}
+
   async execute({ quantity, skipedUsers }: FetchUsersServiceRequest): Promise<FetchUsersServiceResponse> {
     const users = await this.userRepository.fetchAll(quantity, skipedUsers)
 

@@ -1,7 +1,7 @@
 import { User } from '../entities/User'
 import { hash } from 'bcryptjs'
 import { UserWithSameEmailError } from './errros/user-with-same-email-error'
-import { Inject, Service } from 'typedi'
+import { Service } from 'typedi'
 import { UserRepository } from '../repository/typeorm-user-repository'
 
 interface CreateUserServiceRequest {
@@ -17,7 +17,7 @@ interface CreateUserServiceResponse {
 
 @Service()
 export class CreateUserService {
-  constructor(@Inject() private userRepository: UserRepository) {}
+  constructor(private userRepository: UserRepository) {}
 
   async execute({ name, email, password, birthDate }: CreateUserServiceRequest): Promise<CreateUserServiceResponse> {
     const userWithSameEmail = await this.userRepository.findByEmail(email)

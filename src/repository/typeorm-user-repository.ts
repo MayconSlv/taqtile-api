@@ -11,8 +11,10 @@ interface CreateUserData {
 
 @Service()
 export class UserRepository {
+  private userRepository = AppDataSource.getRepository(User)
+
   async findByEmail(email: string) {
-    const user = await AppDataSource.getRepository(User).findOne({
+    const user = await this.userRepository.findOne({
       where: {
         email,
       },
@@ -22,7 +24,7 @@ export class UserRepository {
   }
 
   async findById(id: string) {
-    const user = await AppDataSource.getRepository(User).findOne({
+    const user = await this.userRepository.findOne({
       where: {
         id,
       },
@@ -33,13 +35,13 @@ export class UserRepository {
   }
 
   async create(data: CreateUserData) {
-    const user = await AppDataSource.getRepository(User).save(data)
+    const user = await this.userRepository.save(data)
 
     return user
   }
 
   async fetchAll(quantity: number, skipedUsers: number) {
-    const users = await AppDataSource.getRepository(User).find({
+    const users = await this.userRepository.find({
       order: {
         name: 'ASC',
       },
@@ -52,7 +54,7 @@ export class UserRepository {
   }
 
   async countAll() {
-    const totalUsers = await AppDataSource.getRepository(User).count()
+    const totalUsers = await this.userRepository.count()
     return totalUsers
   }
 }
