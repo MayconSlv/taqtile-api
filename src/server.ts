@@ -8,11 +8,13 @@ import { buildSchema } from 'type-graphql'
 import { AuthenticateResolver } from './graphql/resolvers/authenticate'
 import { CreateUserResolver } from './graphql/resolvers/crate-user'
 import { FetchUsersResolver } from './graphql/resolvers/fetch-users-resolver'
+import { Container } from 'typedi'
 
 async function server() {
   const schema = await buildSchema({
     resolvers: [AuthenticateResolver, CreateUserResolver, FetchUsersResolver],
     emitSchemaFile: path.resolve(__dirname, 'schema.gql'),
+    container: Container,
   })
 
   const server = new ApolloServer({

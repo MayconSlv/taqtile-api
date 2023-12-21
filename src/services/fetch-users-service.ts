@@ -1,5 +1,6 @@
-import { AppDataSource } from '../data-source'
+import { Service } from 'typedi'
 import { User } from '../entities/User'
+import { UserRepository } from '../repository/typeorm-user-repository'
 
 interface FetchUsersServiceResponse {
   users: User[]
@@ -13,19 +14,14 @@ interface FetchUsersServiceRequest {
   skipedUsers: number
 }
 
+@Service()
 export class FetchUsersService {
-  async execute({ quantity, skipedUsers }: FetchUsersServiceRequest): Promise<FetchUsersServiceResponse> {
-    const repo = AppDataSource.getRepository(User)
-    const users = await repo.find({
-      order: {
-        name: 'ASC',
-      },
-      take: quantity,
-      skip: skipedUsers,
-      relations: ['addresses'],
-    })
+  constructor(private userRepository: UserRepository) {}
 
-    const totalUsers = await repo.count()
+  async execute({ quantity, skipedUsers }: FetchUsersServiceRequest): Promise<FetchUsersServiceResponse> {
+    const users = await this.userRepository.fetchAll(quantity, skipedUsers)
+
+    const totalUsers = await this.userRepository.countAll()
 
     const hasMoreAfter = skipedUsers + quantity < totalUsers
     const hasMoreBefore = skipedUsers > 1
